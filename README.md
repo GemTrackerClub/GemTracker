@@ -1,37 +1,44 @@
-## Welcome to GitHub Pages
+## Welcome to GemTracker.club
 
-You can use the [editor on GitHub](https://github.com/CryptoDevTV/GemTracker/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+Instant notification about changes on [Uniswap](https://uniswap.org/) and other decentralized exchanges (DEX). 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Join the secret channel on Telegram and receive information about newly added and deleted tokens, potentially **gems**.
 
-### Markdown
+**Channel address will be released soon.**
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Features
 
-```markdown
-Syntax highlighted code block
+#### *Implemented*:
 
-# Header 1
-## Header 2
-### Header 3
+##### Send message to private Telegram channel about:
 
-- Bulleted
-- List
+- recently added tokens to Uniswap (maybe gem?)
+- recently deleted tokens from Uniswap (maybe fake or scam or maybe poor liquidity)
 
-1. Numbered
-2. List
+#### *On roadmap:*
 
-**Bold** and _Italic_ and `Code` text
+##### Send message to private Telegram channel about:
 
-[Link](url) and ![Image](src)
-```
+- recently added/deleted tokens to [Kyber Network](https://developer.kyber.network/docs/API_ABI-RESTfulAPI/#currencies)
+- recently added/deleted tokens to [1inch](https://api.1inch.exchange/v1.1/tokens)
+- recently added/deleted tokens to [loopring](https://docs.loopring.io/en/dex_apis/getTokens.html)
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+##### Other:
 
-### Jekyll Themes
+- track [whales](https://captainaltcoin.com/what-are-crypto-whales/) address and send messages on changes ([when they are buying or selling](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-address-info))
+- track token [transfers](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-token-info)
+- track token [holders](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-token-info)
+- track [top token holders](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-top-token-holders)
+- your ideas post [here](https://github.com/CryptoDevTV/GemTracker/issues)
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/CryptoDevTV/GemTracker/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+### Screens
 
-### Support or Contact
+![Added notification](docs/images/added_info.png)
 
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+### Author
+
+Feel free to say thanks to [Tomasz Kowalczyk](https://twitter.com/tomkowalczyk) and...
+
+- give him a subscribe on [YouTube](https://www.youtube.com/channel/UCDAgUeYcYhnhRaK2MAQGLbw?sub_confirmation=1)
+- follow on [Twitter](https://twitter.com/tomkowalczyk)
+
