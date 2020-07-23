@@ -4,7 +4,9 @@ Instant notification about changes on [Uniswap](https://uniswap.org/) and other 
 
 Join the secret channel on [Telegram](tg://join?invite=AAAAAFVYFw5YfpnyAUPhEg) and receive information about newly added and deleted tokens, potentially **gems**.
 
-**Channel address will be released soon.**
+**Links:**
+- [Telegram Group](https://t.me/joinchat/JmoiyRyhQp5o7Ts1ZezFQA)
+- [Telegram Channel](https://t.me/joinchat/AAAAAFVYFw5YfpnyAUPhEg)
 
 ### Features
 
