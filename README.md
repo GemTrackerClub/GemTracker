@@ -19,7 +19,7 @@ Join the secret channel on [Telegram](tg://join?invite=AAAAAFVYFw5YfpnyAUPhEg) a
 
 ##### Send message to private Telegram channel about:
 
-- [ ]  recently added/deleted tokens to [Kyber Network](https://developer.kyber.network/docs/API_ABI-RESTfulAPI/#currencies)
+- [ ] recently added/deleted tokens to [Kyber Network](https://developer.kyber.network/docs/API_ABI-RESTfulAPI/#currencies)
 - [ ] recently added/deleted tokens to [1inch](https://api.1inch.exchange/v1.1/tokens)
 - [ ] recently added/deleted tokens to [loopring](https://docs.loopring.io/en/dex_apis/getTokens.html)
 - [ ] recently added/deleted tokens to [IDEX](https://docs.idex.market/#operation/returnCurrencies)
