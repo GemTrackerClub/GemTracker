@@ -22,6 +22,7 @@ Join the secret channel on Telegram and receive information about newly added an
 - recently added/deleted tokens to [Kyber Network](https://developer.kyber.network/docs/API_ABI-RESTfulAPI/#currencies)
 - recently added/deleted tokens to [1inch](https://api.1inch.exchange/v1.1/tokens)
 - recently added/deleted tokens to [loopring](https://docs.loopring.io/en/dex_apis/getTokens.html)
+- recently added/deleted tokens to [IDEX](https://docs.idex.market/#operation/returnCurrencies)
 
 ##### Other:
 
