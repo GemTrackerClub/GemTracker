@@ -6,7 +6,7 @@ Join the secret channel on [Telegram](tg://join?invite=AAAAAFVYFw5YfpnyAUPhEg) a
 
 **Links:**
 - [Telegram Group](https://t.me/joinchat/JmoiyRyhQp5o7Ts1ZezFQA)
-- [Telegram Channel](https://t.me/joinchat/AAAAAFVYFw5YfpnyAUPhEg)
+- [Telegram Channel](https://t.me/GemTrackerClub)
 
 ### Features
 
