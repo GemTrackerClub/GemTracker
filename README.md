@@ -38,6 +38,8 @@ Join the secret channel on [Telegram](tg://join?invite=AAAAAFVYFw5YfpnyAUPhEg) a
 
 ![Added notification](docs/images/added_info.png)
 
+![Deleted notification](docs/images/deleted_info.png)
+
 ### How to use
 
 After getting notification from **GemTracker** on Telegram about adding new token to `DEX` (decentralized exchange), please `DYOR` (do your own research).
@@ -50,6 +52,9 @@ Feel free to use provided features, described below:
 	- *Twitter mentions* - check tweets with symbol of this token,
 	- *Reddit questions* - find out what community says on Reddit,
 	- *4chan hype* - maybe anonymous people are trying to pump this project
+- Statistics (few metrics from blockchain):
+	- *EthPlorer* - check holders, contract creator, transactions and more
+	- *blockchair* - check when created, in which block and more
 - Check this token on [Uniswap](https://uniswap.info/home):
 	- *Info* - the best place to check basic metrics like Liquidity, Volume, Transactions
 	- *Buy* - if you want to buy it, click
