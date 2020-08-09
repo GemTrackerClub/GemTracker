@@ -2,11 +2,10 @@
 
 Instant notification about changes on [Uniswap](https://uniswap.org/) and other decentralized exchanges (DEX). Tracking whales movements and token transfers between addresses.
 
-Join the secret channel on [Telegram](tg://join?invite=AAAAAFVYFw5YfpnyAUPhEg) and receive information about newly added and deleted tokens, potentially **gems**.
+Join our community and receive information about newly added and deleted tokens, potentially **gems**.
 
 **Links:**
-- [Telegram Group](https://t.me/joinchat/JmoiyRyhQp5o7Ts1ZezFQA)
-- [Telegram Channel](https://t.me/GemTrackerClub)
+- [GEM Notifications](https://t.me/GemTrackerClub)
 
 ### Features
 
