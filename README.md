@@ -1,37 +1,40 @@
-## Welcome to GemTracker.club
+![GemTracker.club Logo](docs/images/gemtracker.png)
+# Welcome to GemTracker.club
 
-Instant notification about changes on [Uniswap](https://uniswap.org/) and other decentralized exchanges (DEX). Tracking whales movements and token transfers between addresses.
+Instant notification about any changes from decentralized world straight to you (newly added tokens, whales movements, token transfers and more...).
+
+Follow our **free** Telegram channel for notifications from Uniswap. Join as a premium customer for professional gem and crypto insights.
 
 Join our community and receive information about newly added and deleted tokens, potentially **gems**.
 
 **Links:**
-- [GEM Notifications](https://t.me/GemTrackerClub)
+- [Uniswap GEM Notifications](https://t.me/GemTrackerClub) - GemTracker.club
 
 ### Features
 
-#### *Implemented*:
+#### *Public and free to use:*
+
+##### Send message to public Telegram channel about:
+
+- recently added tokens to Uniswap (maybe gem?)
+- recently deleted tokens from Uniswap (maybe fake or scam or maybe poor liquidity)
+
+#### *Premium, paid version for demanding customers:*
 
 ##### Send message to private Telegram channel about:
 
-- [x] recently added tokens to Uniswap (maybe gem?)
-- [x] recently deleted tokens from Uniswap (maybe fake or scam or maybe poor liquidity)
-
-#### *On roadmap:*
-
-##### Send message to private Telegram channel about:
-
-- [ ] recently added/deleted tokens to [Kyber Network](https://developer.kyber.network/docs/API_ABI-RESTfulAPI/#currencies)
-- [ ] recently added/deleted tokens to [1inch](https://api.1inch.exchange/v1.1/tokens)
-- [ ] recently added/deleted tokens to [loopring](https://docs.loopring.io/en/dex_apis/getTokens.html)
-- [ ] recently added/deleted tokens to [IDEX](https://docs.idex.market/#operation/returnCurrencies)
+- recently added/deleted tokens to [Kyber Network](https://developer.kyber.network/docs/API_ABI-RESTfulAPI/#currencies)
+- recently added/deleted tokens to [1inch](https://api.1inch.exchange/v1.1/tokens)
+- recently added/deleted tokens to [loopring](https://docs.loopring.io/en/dex_apis/getTokens.html)
+- recently added/deleted tokens to [IDEX](https://docs.idex.market/#operation/returnCurrencies)
 
 ##### Other:
 
-- [ ] track [whales](https://captainaltcoin.com/what-are-crypto-whales/) address and send messages on changes ([when they are buying or selling](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-address-info))
-- [ ] track token [transfers](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-token-info)
-- [ ] track token [holders](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-token-info)
-- [ ] track [top token holders](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-top-token-holders)
-- [ ] your ideas post [here](https://github.com/CryptoDevTV/GemTracker/issues)
+- track [whales](https://captainaltcoin.com/what-are-crypto-whales/) address and send messages on changes ([when they are buying or selling](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-address-info))
+- track token [transfers](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-token-info)
+- track token [holders](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-token-info)
+- track [top token holders](https://github.com/EverexIO/Ethplorer/wiki/Ethplorer-API#get-top-token-holders)
+- your ideas post [here](https://github.com/CryptoDevTV/GemTracker/issues)
 
 ### Screens
 
