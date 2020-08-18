@@ -28,10 +28,10 @@ namespace GemTracker.Shared.Domain
             _uniswapService = uniswapService;
             _fileService = fileService;
         }
-        public void SetPaths(string storagePath, UniswapApiVersion apiVersion, UniswapEndpoint uniswapEndpoint)
+        public void SetPaths(string storagePath)
         {
-            ApiVersion = apiVersion;
-            UniswapEndpoint = uniswapEndpoint;
+            ApiVersion = UniswapApiVersion.V2;
+            UniswapEndpoint = UniswapEndpoint.GRAPH;
             StorageFilePath = C.Storage(storagePath, ApiVersion, UniswapEndpoint);
             StorageFilePathDeleted = C.StorageDeleted(storagePath, ApiVersion, UniswapEndpoint);
             StorageFilePathAdded = C.StorageAdded(storagePath, ApiVersion, UniswapEndpoint);
@@ -40,23 +40,11 @@ namespace GemTracker.Shared.Domain
         {
             var result = new UniswapResponse();
 
-            if (UniswapEndpoint == UniswapEndpoint.REST)
-            {
-                var response = await _uniswapService.Fetch1kAsync(ApiVersion);
+            var response = await _uniswapService.FetchAllAsync(maxSize);
 
-                if (response.Success)
-                {
-                    result.Tokens = response.Tokens;
-                }
-            }
-            if (UniswapEndpoint == UniswapEndpoint.GRAPH)
+            if (response.Success)
             {
-                var response = await _uniswapService.FetchAllAsync(maxSize);
-
-                if (response.Success)
-                {
-                    result.Tokens = response.Tokens;
-                }
+                result.Tokens = response.Tokens;
             }
             return result;
         }

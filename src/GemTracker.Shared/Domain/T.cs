@@ -4,6 +4,7 @@ using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Domain
@@ -15,7 +16,7 @@ namespace GemTracker.Shared.Domain
         {
             _telegramService = telegramService;
         }
-        public async Task<Notified> Notify(IEnumerable<Gem> gems, UniswapApiVersion apiVersion, UniswapEndpoint uniswapEndpoint)
+        public async Task<Notified> Notify(IEnumerable<Gem> gems)
         {
             var result = new Notified();
             try
@@ -24,14 +25,14 @@ namespace GemTracker.Shared.Domain
                 {
                     foreach (var gem in gems)
                     {
-                        //var sent = await _telegramService.SendMessageAsync(M.Compose(gem, apiVersion, uniswapEndpoint));
-                        var msg = M.ComposeMessage(gem, apiVersion, uniswapEndpoint);
+                        var msg = M.ComposeMessage(gem);
                         var sent = await _telegramService.SendMessageAsync(msg.Item2, msg.Item1);
 
                         if (!sent.Success)
                         {
                             result.Message += sent.Message;
                         }
+                        Thread.Sleep(1000); // to not fall in api limits
                     }
                 }
                 else
