@@ -72,6 +72,9 @@ namespace GemTracker.Agent.Jobs
                 }
                 else
                     Logger.Info("Empty list");
+
+                if (cfg.Success)
+                    Logger.Info($"Job: {cfg.JobConfig.Label} - DONE");
             }
             catch (Exception e)
             {
