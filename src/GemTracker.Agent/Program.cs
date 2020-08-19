@@ -76,8 +76,32 @@ namespace GemTracker.Agent
                 var fdfuTrigger = fdfuBuilder.Build();
                 #endregion
 
-                if(fdfu.IsActive)
+                #region SendAdvertisement
+                var sa = app.Jobs.FirstOrDefault(j => j.Name == "j-send-advertisement");
+
+                IJobDetail saJob = JobBuilder.Create<SendAdvertisement>()
+                    .WithIdentity($"{sa.Name}Job")
+                    .Build();
+
+                saJob.JobDataMap["FileName"] = sa.Name;
+                saJob.JobDataMap["StoragePath"] = app.StoragePath;
+
+                var saBuilder = TriggerBuilder.Create()
+                    .WithIdentity($"{sa.Name}Trigger")
+                    .StartNow();
+
+                saBuilder.WithSimpleSchedule(x => x
+                        .WithIntervalInMinutes(sa.IntervalInMinutes)
+                        .RepeatForever());
+
+                var saTrigger = saBuilder.Build();
+                #endregion
+
+                if (fdfu.IsActive)
                     await _scheduler.ScheduleJob(fdfuJob, fdfuTrigger);
+
+                if (sa.IsActive)
+                    await _scheduler.ScheduleJob(saJob, saTrigger);
 
                 await Task.Delay(TimeSpan.FromSeconds(30));
 

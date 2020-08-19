@@ -28,6 +28,7 @@ namespace GemTracker.Agent.DI
 
             #region Jobs
             services.AddTransient<FetchDataFromUniswapJob>();
+            services.AddTransient<SendAdvertisement>();
             #endregion
 
             #region Services
