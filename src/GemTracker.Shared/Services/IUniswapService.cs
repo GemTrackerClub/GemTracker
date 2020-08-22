@@ -26,7 +26,7 @@ namespace GemTracker.Shared.Services
 
                 var list = new List<Token>();
 
-                for (int i = 0; i < maxSize; i += 500)
+                for (int i = 0; i < maxSize; i += 900)
                 {
                     var request = new GraphQLRequest
                     {
@@ -41,7 +41,7 @@ namespace GemTracker.Shared.Services
                         OperationName = "GetTokens",
                         Variables = new
                         {
-                            first = 500,
+                            first = 900,
                             skip = i
                         }
                     };
@@ -55,7 +55,15 @@ namespace GemTracker.Shared.Services
                             list.AddRange(graphQLResponse.Data.Tokens);
                         }
                     }
-                    Thread.Sleep(2000);
+                    else
+                    {
+                        result.Message = $"Errors {graphQLResponse.Errors.Length}";
+                        foreach (var error in graphQLResponse.Errors)
+                        {
+                            result.Message += error.Message;
+                        }
+                    }
+                    Thread.Sleep(1000);
                 }
                 result.Tokens = list;
             }

@@ -46,6 +46,10 @@ namespace GemTracker.Shared.Domain
             {
                 result.Tokens = response.Tokens;
             }
+            else
+            {
+                result.Message = response.Message;
+            }
             return result;
         }
         public async Task<Loaded> LoadFromStorage()
