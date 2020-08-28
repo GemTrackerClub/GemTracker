@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <None Update="appsettings.gem-runtime.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="j-fetch-data-from-uniswap.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

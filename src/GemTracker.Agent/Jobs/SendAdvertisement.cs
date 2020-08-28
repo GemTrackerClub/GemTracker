@@ -62,16 +62,16 @@ namespace GemTracker.Agent.Jobs
 
                             await _fileService.SetAsync(storageAdv, storedList);
 
-                            Logger.Info($"Message sent with content: {toSend.Content}. Storage updated.");
+                            Logger.Info($"Job: {cfg.JobConfig.Label} - Message sent with content: {toSend.Content}. Storage updated.");
                         }
                         else
-                            Logger.Error($"{response.Message}");
+                            Logger.Error($"Job: {cfg.JobConfig.Label} - {response.Message}");
                     }
                     else
-                        Logger.Info("Nothing to send");
+                        Logger.Info($"Job: {cfg.JobConfig.Label} - Nothing to send");
                 }
                 else
-                    Logger.Info("Empty list");
+                    Logger.Info($"Job: {cfg.JobConfig.Label} - Empty list");
 
                 if (cfg.Success)
                     Logger.Info($"Job: {cfg.JobConfig.Label} - DONE");

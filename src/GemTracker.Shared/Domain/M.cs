@@ -9,10 +9,7 @@ namespace GemTracker.Shared.Domain
     {
         public static Tuple<IReplyMarkup, string> ComposeMessage(Gem gem)
         {
-            var authorBanner = $"[CryptoDev](https://cryptodev.tv)";
-            var joinTelegram = $"[Telegram](https://t.me/joinchat/JmoiyRyhQp5o7Ts1ZezFQA)";
-            var giveAuthorSubOnYT = $"[YouTube](https://www.youtube.com/channel/UCDAgUeYcYhnhRaK2MAQGLbw?sub_confirmation=1)";
-            var authorTwitter = $"[Twitter](https://twitter.com/tomkowalczyk)";
+            var authorTwitter = $"[Author](https://twitter.com/tomkowalczyk)";
 
             var emoji = gem.Recently == TokenAction.ADDED
                 ? "✅"
@@ -32,7 +29,10 @@ namespace GemTracker.Shared.Domain
                 $"🧮 *Statistics*\n" +
                 $"EthPlorer [{gem.Id}](https://ethplorer.io/address/{gem.Id})\n" +
                 $"blockchair [{gem.Id}](https://blockchair.com/ethereum/erc-20/token/{gem.Id}?from=gemtracker)\n\n" +
-                $"🙏 *thx to* {authorBanner} | {joinTelegram} | {giveAuthorSubOnYT} | {authorTwitter}";
+                $"👨‍👦‍👦 Our community:\n" +
+                $"Chat - @GemTrackerCommunity\n" +
+                $"Announcements - @GemTrackerAnnouncements\n" +
+                $"🙏 {authorTwitter}";
 
             var buttons = new InlineKeyboardMarkup(new[]
             {
@@ -50,7 +50,8 @@ namespace GemTracker.Shared.Domain
                 },
                 new []
                 {
-                    InlineKeyboardButton.WithUrl("How to use? 🚀 GemTracker.club", $"https://gemtracker.club")
+                    InlineKeyboardButton.WithUrl("⚙️ How to use?", $"https://gemtracker.club/#howtouse"),
+                    InlineKeyboardButton.WithUrl("💰 How to invest?", $"https://gemtracker.club/#invest")
                 }
             }); ;
 
