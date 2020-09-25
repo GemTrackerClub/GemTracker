@@ -10,7 +10,7 @@ namespace GemTracker.Shared.Services
 {
     public interface ITelegramService
     {
-        Task<TelegramResponse> SendMessageAsync(string message, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendMessageAsync(string message, IReplyMarkup replyMarkup = null);
     }
 
     public class TelegramService : ITelegramService
@@ -30,9 +30,9 @@ namespace GemTracker.Shared.Services
             _telegramBotClient = new TelegramBotClient(apikey);
         }
 
-        public async Task<TelegramResponse> SendMessageAsync(string message, IReplyMarkup replyMarkup = null)
+        public async Task<SocialResponse> SendMessageAsync(string message, IReplyMarkup replyMarkup = null)
         {
-            var response = new TelegramResponse();
+            var response = new SocialResponse();
             try
             {
                 var s = await _telegramBotClient.SendTextMessageAsync(

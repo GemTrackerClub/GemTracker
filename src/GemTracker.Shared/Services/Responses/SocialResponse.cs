@@ -1,6 +1,6 @@
 ﻿namespace GemTracker.Shared.Services.Responses
 {
-    public class TelegramResponse
+    public class SocialResponse
     {
         public bool Success { get; set; }
         public string Message { get; set; }

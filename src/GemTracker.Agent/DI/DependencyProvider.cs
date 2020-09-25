@@ -40,6 +40,12 @@ namespace GemTracker.Agent.DI
                 s => new TelegramService(
                     app.TelegramConfig.ApiKey,
                     app.TelegramConfig.ChatId));
+            services.AddTransient<ITwitterService>(
+                s => new TwitterService(
+                    app.TwitterConfig.ApiKey,
+                    app.TwitterConfig.ApiSecret,
+                    app.TwitterConfig.Token
+                    ));
             #endregion
 
             var serviceProvider = services.BuildServiceProvider();
