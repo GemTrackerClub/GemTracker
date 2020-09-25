@@ -29,16 +29,18 @@ namespace GemTracker.Shared.Domain
                 $"🧮 *Statistics*\n" +
                 $"EthPlorer [{gem.Id}](https://ethplorer.io/address/{gem.Id})\n" +
                 $"blockchair [{gem.Id}](https://blockchair.com/ethereum/erc-20/token/{gem.Id}?from=gemtracker)\n\n" +
+                $"📊 *Charts*\n" +
+                $"ChartEx [${gem.Symbol}](https://chartex.pro/?symbol=UNISWAP:{gem.Symbol}) | [${gem.Symbol}/$WETH](https://chartex.pro/?symbol=UNISWAP:{gem.Symbol}/WETH)\n\n" +
                 $"👨‍👦‍👦 Our community:\n" +
                 $"Chat - @GemTrackerCommunity\n" +
-                $"Announcements - @GemTrackerAnnouncements\n" +
-                $"🙏 {authorTwitter}";
+                $"Info - @GemTrackerAnnouncements\n" +
+                $"{authorTwitter}";
 
             var buttons = new InlineKeyboardMarkup(new[]
             {
                 new []
                 {
-                    InlineKeyboardButton.WithUrl("📊 Info", $"https://uniswap.info/token/{gem.Id}"),
+                    InlineKeyboardButton.WithUrl("📋 Info", $"https://uniswap.info/token/{gem.Id}"),
                     InlineKeyboardButton.WithUrl("📉 Buy", $"https://app.uniswap.org/#/swap?outputCurrency={gem.Id}"),
                     InlineKeyboardButton.WithUrl("📈 Sell", $"https://app.uniswap.org/#/swap?inputCurrency={gem.Id}"),
                 },
