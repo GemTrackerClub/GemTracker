@@ -53,7 +53,7 @@ namespace GemTracker.Shared.Domain
                 new []
                 {
                     InlineKeyboardButton.WithUrl("⚙️ How to use?", $"https://gemtracker.club/#howtouse"),
-                    InlineKeyboardButton.WithUrl("💰 How to invest?", $"https://gemtracker.club/#invest")
+                    InlineKeyboardButton.WithUrl("💰 Premium access?", $"https://gemtracker.club/#premium")
                 }
             }); ;
 

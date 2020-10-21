@@ -11,6 +11,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Permissions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GemTracker.Agent
@@ -27,8 +28,13 @@ namespace GemTracker.Agent
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         static async Task<int> Main()
         {
+            var cancellationTokenSource = new CancellationTokenSource();
+
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledExceptionHandler);
+            
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => cancellationTokenSource.Cancel();
+            Console.CancelKeyPress += (s, e) => cancellationTokenSource.Cancel();
 
             LogManager.Configuration.Variables["fileName"] = $"{appId}-{DateTime.UtcNow.ToString("ddMMyyyy")}.log";
             LogManager.Configuration.Variables["archiveFileName"] = $"{appId}-{DateTime.UtcNow.ToString("ddMMyyyy")}.log";
@@ -105,7 +111,7 @@ namespace GemTracker.Agent
 
                 await Task.Delay(TimeSpan.FromSeconds(30));
 
-                Console.ReadKey();
+                await Task.Delay(-1, cancellationTokenSource.Token).ContinueWith(t => { });
             }
             catch (SchedulerException ex)
             {
