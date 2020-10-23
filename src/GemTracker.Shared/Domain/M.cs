@@ -20,7 +20,7 @@ namespace GemTracker.Shared.Domain
                 $"🦄 Uniswap: https://uniswap.info/token/{gem.Id} \n" +
                 $"🔎 EthScan: https://etherscan.io/token/{gem.Id} \n" +
                 $"Join: https://t.me/GemTrackerClub \n" +
-                $"Follow: @tomkowalczyk ($BTC $ETH $ALTS $UNI)\n";
+                $"( $BTC $ETH $ALTS $UNI #uniswap #cryptocurrency #gem)\n";
 
             return result;
         }

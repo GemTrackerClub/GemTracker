@@ -7,6 +7,7 @@ using GraphQL.Client.Serializer.Newtonsoft;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Services
@@ -69,7 +70,17 @@ namespace GemTracker.Shared.Services
                             last = lastOne.Id;
                         }
                     }
-                } while (!(graphQLResponse.Data is null) && graphQLResponse.Data.Tokens.AnyAndNotNull());
+
+                    if(!(graphQLResponse.Errors is null))
+                    {
+                        result.Tokens = null;
+                        result.Message = graphQLResponse.Errors?.FirstOrDefault().Message;
+                        break;
+                    }
+
+                    Thread.Sleep(500);
+
+                } while (!(graphQLResponse.Data is null) && (graphQLResponse.Errors is null) && graphQLResponse.Data.Tokens.AnyAndNotNull());
 
                 result.Tokens = list;
             }
