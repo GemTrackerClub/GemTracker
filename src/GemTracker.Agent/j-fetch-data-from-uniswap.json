@@ -1,5 +1,4 @@
 ﻿{
   "label": "fetch-data-from-uniswap",
-  "notify": true,
-  "tofetch": 8000
+  "notify": true
 }

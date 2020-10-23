@@ -9,8 +9,6 @@ namespace GemTracker.Shared.Domain
     {
         public static Tuple<IReplyMarkup, string> ComposeMessage(Gem gem)
         {
-            var authorTwitter = $"[Author](https://twitter.com/tomkowalczyk)";
-
             var emoji = gem.Recently == TokenAction.ADDED
                 ? "✅"
                 : "❌";
@@ -33,8 +31,7 @@ namespace GemTracker.Shared.Domain
                 $"ChartEx [${gem.Symbol}](https://chartex.pro/?symbol=UNISWAP:{gem.Symbol}) | [${gem.Symbol}/$WETH](https://chartex.pro/?symbol=UNISWAP:{gem.Symbol}/WETH)\n\n" +
                 $"👨‍👦‍👦 Our community:\n" +
                 $"Chat - @GemTrackerCommunity\n" +
-                $"Info - @GemTrackerAnnouncements\n" +
-                $"{authorTwitter}";
+                $"Info - @GemTrackerAnnouncements\n";
 
             var buttons = new InlineKeyboardMarkup(new[]
             {
@@ -54,6 +51,10 @@ namespace GemTracker.Shared.Domain
                 {
                     InlineKeyboardButton.WithUrl("⚙️ How to use?", $"https://gemtracker.club/#howtouse"),
                     InlineKeyboardButton.WithUrl("💰 Premium access?", $"https://gemtracker.club/#premium")
+                },
+                new []
+                {
+                    InlineKeyboardButton.WithUrl("📧 Author", $"https://twitter.com/tomkowalczyk")
                 }
             }); ;
 

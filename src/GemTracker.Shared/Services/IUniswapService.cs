@@ -6,65 +6,71 @@ using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Services
 {
     public interface IUniswapService
     {
-        Task<UniswapResponse> FetchAllAsync(int maxSize = 5000);
+        Task<UniswapResponse> FetchAllAsync();
     }
     public class UniswapService : IUniswapService
     {
-        public async Task<UniswapResponse> FetchAllAsync(int maxSize = 5000)
+        public async Task<UniswapResponse> FetchAllAsync()
         {
             var result = new UniswapResponse();
             try
             {
                 using var graphQLClient = new GraphQLHttpClient("https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2", new NewtonsoftJsonSerializer());
 
-                var list = new List<Token>();
+                GraphQLResponse<TokenList> graphQLResponse = null;
 
-                for (int i = 0; i < maxSize; i += 900)
+                var list = new List<Token>();
+                var last = "0x0";
+
+                do
                 {
-                    var request = new GraphQLRequest
+                    var initialRequest = new GraphQLRequest
                     {
                         Query = @"
-                            query GetTokens($first: Int, $skip: Int) {
-                              tokens(first: $first, skip: $skip) {
-                                id
-                                symbol
-                                name
-                              }
+                    query GetTokens(
+                      $first: Int,
+	                    $orderBy: ID,
+	                    $orderDirection: String) {
+                        tokens(
+                          first: $first, where: {
+    		                    id_gt: " + $"\"{last}\"" + @"
+                                },
+                            orderBy: $orderBy,
+    	                    orderDirection: $orderDirection) {
+                                    id
+                                    symbol
+                                    name
+                        }
                             }",
                         OperationName = "GetTokens",
                         Variables = new
                         {
-                            first = 900,
-                            skip = i
+                            first = 500
                         }
                     };
 
-                    var graphQLResponse = await graphQLClient.SendQueryAsync<TokenList>(request);
+                    graphQLResponse = await graphQLClient.SendQueryAsync<TokenList>(initialRequest);
 
                     if (!(graphQLResponse.Data is null))
                     {
                         if (graphQLResponse.Data.Tokens.AnyAndNotNull())
                         {
                             list.AddRange(graphQLResponse.Data.Tokens);
+
+                            var lastOne = graphQLResponse.Data.Tokens.Last();
+
+                            last = lastOne.Id;
                         }
                     }
-                    else
-                    {
-                        result.Message = $"Errors {graphQLResponse.Errors.Length}";
-                        foreach (var error in graphQLResponse.Errors)
-                        {
-                            result.Message += error.Message;
-                        }
-                    }
-                    Thread.Sleep(1000);
-                }
+                } while (!(graphQLResponse.Data is null) && graphQLResponse.Data.Tokens.AnyAndNotNull());
+
                 result.Tokens = list;
             }
             catch (Exception ex)

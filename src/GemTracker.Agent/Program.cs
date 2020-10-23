@@ -36,8 +36,8 @@ namespace GemTracker.Agent
             AppDomain.CurrentDomain.ProcessExit += (s, e) => cancellationTokenSource.Cancel();
             Console.CancelKeyPress += (s, e) => cancellationTokenSource.Cancel();
 
-            LogManager.Configuration.Variables["fileName"] = $"{appId}-{DateTime.UtcNow.ToString("ddMMyyyy")}.log";
-            LogManager.Configuration.Variables["archiveFileName"] = $"{appId}-{DateTime.UtcNow.ToString("ddMMyyyy")}.log";
+            LogManager.Configuration.Variables["fileName"] = $"{appId}-{DateTime.UtcNow:ddMMyyyy}.log";
+            LogManager.Configuration.Variables["archiveFileName"] = $"{appId}-{DateTime.UtcNow:ddMMyyyy}.log";
 
             var cfgBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())

@@ -36,11 +36,11 @@ namespace GemTracker.Shared.Domain
             StorageFilePathDeleted = C.StorageDeleted(storagePath, ApiVersion, UniswapEndpoint);
             StorageFilePathAdded = C.StorageAdded(storagePath, ApiVersion, UniswapEndpoint);
         }
-        public async Task<UniswapResponse> FetchFromUniswap(int maxSize = 5000)
+        public async Task<UniswapResponse> FetchFromUniswap()
         {
             var result = new UniswapResponse();
 
-            var response = await _uniswapService.FetchAllAsync(maxSize);
+            var response = await _uniswapService.FetchAllAsync();
 
             if (response.Success)
             {

@@ -40,7 +40,7 @@ namespace GemTracker.Agent.Jobs
                 var uniswap = new U(_uniswapService, _fileService);
                 uniswap.SetPaths(storagePath);
 
-                var latestAll = await uniswap.FetchFromUniswap(cfg.JobConfig.ToFetch);
+                var latestAll = await uniswap.FetchFromUniswap();
 
                 if (latestAll.Success)
                 {
