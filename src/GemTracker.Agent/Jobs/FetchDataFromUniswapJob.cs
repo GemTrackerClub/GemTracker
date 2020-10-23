@@ -17,16 +17,19 @@ namespace GemTracker.Agent.Jobs
         private readonly IUniswapService _uniswapService;
         private readonly IFileService _fileService;
         private readonly ITelegramService _telegramService;
+        private readonly ITwitterService _twitterService;
         public FetchDataFromUniswapJob(
             IConfigurationService configurationService,
             IUniswapService uniswapService,
             IFileService fileService,
-            ITelegramService telegramService)
+            ITelegramService telegramService,
+            ITwitterService twitterService)
         {
             _configurationService = configurationService;
             _uniswapService = uniswapService;
             _fileService = fileService;
             _telegramService = telegramService;
+            _twitterService = twitterService;
         }
         public async Task Execute(IJobExecutionContext context)
         {
@@ -69,7 +72,7 @@ namespace GemTracker.Agent.Jobs
                         {
                             Logger.Info($"V2|GRAPH|TELEGRAM|ON");
 
-                            var telegramNotification = new T(_telegramService);
+                            var telegramNotification = new T(_telegramService, _twitterService);
 
                             var notifiedAboutDeleted = await telegramNotification.Notify(recentlyDeletedAll);
 

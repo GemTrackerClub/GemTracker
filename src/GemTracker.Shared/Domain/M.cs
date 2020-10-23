@@ -7,7 +7,24 @@ namespace GemTracker.Shared.Domain
 {
     public class M
     {
-        public static Tuple<IReplyMarkup, string> ComposeMessage(Gem gem)
+        public static string MessageForTwitter(Gem gem)
+        {
+            var emoji = gem.Recently == TokenAction.ADDED
+                ? "✅"
+                : "❌";
+
+            var result =
+                $"{emoji} {gem.Recently.GetDescription()} - Uniswap\n\n" +
+                $"💎 Token: {gem.Name}\n" +
+                $"🚨 Symbol: ${gem.Symbol}\n" +
+                $"🦄 Uniswap: https://uniswap.info/token/{gem.Id} \n" +
+                $"🔎 EthScan: https://etherscan.io/token/{gem.Id} \n" +
+                $"Join: https://t.me/GemTrackerClub \n" +
+                $"Follow: @tomkowalczyk ($BTC $ETH $ALTS $UNI)\n";
+
+            return result;
+        }
+        public static Tuple<IReplyMarkup, string> MessageForTelegram(Gem gem)
         {
             var emoji = gem.Recently == TokenAction.ADDED
                 ? "✅"

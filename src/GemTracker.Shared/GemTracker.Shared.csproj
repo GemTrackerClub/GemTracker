@@ -8,6 +8,7 @@
     <PackageReference Include="GraphQL.Client" Version="3.2.0" />
     <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="3.2.0" />
     <PackageReference Include="Telegram.Bot" Version="15.7.1" />
+    <PackageReference Include="TweetinviAPI" Version="5.0.2" />
   </ItemGroup>
 
 </Project>

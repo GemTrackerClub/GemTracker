@@ -43,7 +43,8 @@ namespace GemTracker.Agent.DI
                 s => new TwitterService(
                     app.TwitterConfig.ApiKey,
                     app.TwitterConfig.ApiSecret,
-                    app.TwitterConfig.Token
+                    app.TwitterConfig.AccessToken,
+                    app.TwitterConfig.AccessSecret
                     ));
             #endregion
 

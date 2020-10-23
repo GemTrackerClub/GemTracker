@@ -12,9 +12,13 @@ namespace GemTracker.Shared.Domain
     public class T
     {
         private readonly ITelegramService _telegramService;
-        public T(ITelegramService telegramService)
+        private readonly ITwitterService _twitterService;
+        public T(
+            ITelegramService telegramService,
+            ITwitterService twitterService)
         {
             _telegramService = telegramService;
+            _twitterService = twitterService;
         }
         public async Task<Notified> Notify(IEnumerable<Gem> gems)
         {
@@ -25,13 +29,22 @@ namespace GemTracker.Shared.Domain
                 {
                     foreach (var gem in gems)
                     {
-                        var msg = M.ComposeMessage(gem);
-                        var sent = await _telegramService.SendMessageAsync(msg.Item2, msg.Item1);
+                        var msgTg = M.MessageForTelegram(gem);
+                        var sentTg = await _telegramService.SendMessageAsync(msgTg.Item2, msgTg.Item1);
 
-                        if (!sent.Success)
+                        if (!sentTg.Success)
                         {
-                            result.Message += sent.Message;
+                            result.Message += $"Telegram Error: {sentTg.Message}";
                         }
+
+                        var msgTw = M.MessageForTwitter(gem);
+                        var sentTw = await _twitterService.SendMessageAsync(msgTw);
+
+                        if (!sentTw.Success)
+                        {
+                            result.Message += $"Twitter Error: {sentTw.Message}";
+                        }
+
                         Thread.Sleep(1000); // to not fall in api limits
                     }
                 }
