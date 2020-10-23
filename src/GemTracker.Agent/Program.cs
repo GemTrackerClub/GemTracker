@@ -32,7 +32,7 @@ namespace GemTracker.Agent
 
             AppDomain currentDomain = AppDomain.CurrentDomain;
             currentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledExceptionHandler);
-            
+
             AppDomain.CurrentDomain.ProcessExit += (s, e) => cancellationTokenSource.Cancel();
             Console.CancelKeyPress += (s, e) => cancellationTokenSource.Cancel();
 
@@ -82,32 +82,8 @@ namespace GemTracker.Agent
                 var fdfuTrigger = fdfuBuilder.Build();
                 #endregion
 
-                #region SendAdvertisement
-                var sa = app.Jobs.FirstOrDefault(j => j.Name == "j-send-advertisement");
-
-                IJobDetail saJob = JobBuilder.Create<SendAdvertisement>()
-                    .WithIdentity($"{sa.Name}Job")
-                    .Build();
-
-                saJob.JobDataMap["FileName"] = sa.Name;
-                saJob.JobDataMap["StoragePath"] = app.StoragePath;
-
-                var saBuilder = TriggerBuilder.Create()
-                    .WithIdentity($"{sa.Name}Trigger")
-                    .StartNow();
-
-                saBuilder.WithSimpleSchedule(x => x
-                        .WithIntervalInMinutes(sa.IntervalInMinutes)
-                        .RepeatForever());
-
-                var saTrigger = saBuilder.Build();
-                #endregion
-
                 if (fdfu.IsActive)
                     await _scheduler.ScheduleJob(fdfuJob, fdfuTrigger);
-
-                if (sa.IsActive)
-                    await _scheduler.ScheduleJob(saJob, saTrigger);
 
                 await Task.Delay(TimeSpan.FromSeconds(30));
 
