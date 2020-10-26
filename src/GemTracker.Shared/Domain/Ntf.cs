@@ -12,13 +12,10 @@ namespace GemTracker.Shared.Domain
     public class Ntf
     {
         private readonly ITelegramService _telegramService;
-        private readonly ITwitterService _twitterService;
         public Ntf(
-            ITelegramService telegramService,
-            ITwitterService twitterService)
+            ITelegramService telegramService)
         {
             _telegramService = telegramService;
-            _twitterService = twitterService;
         }
         public async Task<Notified> SendAsync(IEnumerable<Gem> gems)
         {
@@ -35,14 +32,6 @@ namespace GemTracker.Shared.Domain
                         if (!sentTg.Success)
                         {
                             result.Message += $"Telegram Error: {sentTg.Message}";
-                        }
-
-                        var msgTw = Msg.ForTwitter(gem);
-                        var sentTw = await _twitterService.SendMessageAsync(msgTw);
-
-                        if (!sentTw.Success)
-                        {
-                            result.Message += $"Twitter Error: {sentTw.Message}";
                         }
 
                         Thread.Sleep(1000); // to not fall in api limits

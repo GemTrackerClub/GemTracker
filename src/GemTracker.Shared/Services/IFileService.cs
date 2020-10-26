@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -24,14 +25,28 @@ namespace GemTracker.Shared.Services
 
         public async Task<T> GetAsync<T>(string fileName)
         {
-            using FileStream fs = File.OpenRead(fileName);
-            return await JsonSerializer.DeserializeAsync<T>(fs, _options);
+            try
+            {
+                using FileStream fs = File.OpenRead(fileName);
+                return await JsonSerializer.DeserializeAsync<T>(fs, _options);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public async Task SetAsync<T>(string fileName, T objectToSerialize)
         {
-            using FileStream fs = File.Create(fileName);
-            await JsonSerializer.SerializeAsync(fs, objectToSerialize, options: _options);
+            try
+            {
+                using FileStream fs = File.Create(fileName);
+                await JsonSerializer.SerializeAsync(fs, objectToSerialize, options: _options);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
     }
 }

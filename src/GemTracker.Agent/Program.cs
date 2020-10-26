@@ -64,7 +64,7 @@ namespace GemTracker.Agent
                 #region Fetch Data
                 var fdfu = app.Jobs.FirstOrDefault(j => j.Name == "j-fetch-data-from-uniswap");
 
-                IJobDetail fdfuJob = JobBuilder.Create<FetchDataFromUniswapJob>()
+                var fdfuJob = JobBuilder.Create<FetchDataFromUniswapJob>()
                     .WithIdentity($"{fdfu.Name}Job")
                     .Build();
 
@@ -82,8 +82,33 @@ namespace GemTracker.Agent
                 var fdfuTrigger = fdfuBuilder.Build();
                 #endregion
 
+                #region Send Summary
+                var ss = app.Jobs.FirstOrDefault(j => j.Name == "j-send-summary");
+
+                var ssJob = JobBuilder.Create<SendSummaryJob>()
+                    .WithIdentity($"{ss.Name}Job")
+                    .Build();
+
+                ssJob.JobDataMap["FileName"] = ss.Name;
+                ssJob.JobDataMap["StoragePath"] = app.StoragePath;
+                ssJob.JobDataMap["Interval"] = ss.IntervalInMinutes;
+
+                var ssBuilder = TriggerBuilder.Create()
+                    .WithIdentity($"{ss.Name}Trigger")
+                    .StartNow();
+
+                ssBuilder.WithSimpleSchedule(x => x
+                        .WithIntervalInMinutes(ss.IntervalInMinutes)
+                        .RepeatForever());
+
+                var ssTrigger = ssBuilder.Build();
+                #endregion
+
                 if (fdfu.IsActive)
                     await _scheduler.ScheduleJob(fdfuJob, fdfuTrigger);
+
+                if (ss.IsActive)
+                    await _scheduler.ScheduleJob(ssJob, ssTrigger);
 
                 await Task.Delay(TimeSpan.FromSeconds(30));
 

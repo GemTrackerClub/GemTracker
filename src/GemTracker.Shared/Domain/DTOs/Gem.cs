@@ -1,4 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace GemTracker.Shared.Domain.DTOs
 {
@@ -10,5 +12,18 @@ namespace GemTracker.Shared.Domain.DTOs
         public string Date { get; set; }
         [JsonPropertyName("ispublished")]
         public bool IsPublished { get; set; }
+        [JsonIgnore]
+        public DateTime DateTime
+        {
+            get 
+            {
+                CultureInfo provider = CultureInfo.InvariantCulture;
+
+                var dateTime = DateTime.ParseExact(Date, "yyyyMMddHHmmss", provider);
+
+                return dateTime; 
+            }
+            set { DateTime = value; }
+        }
     }
 }

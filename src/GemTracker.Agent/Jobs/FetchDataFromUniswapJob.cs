@@ -72,7 +72,7 @@ namespace GemTracker.Agent.Jobs
                         {
                             Logger.Info($"V2|GRAPH|TELEGRAM|ON");
 
-                            var telegramNotification = new Ntf(_telegramService, _twitterService);
+                            var telegramNotification = new Ntf(_telegramService);
 
                             var notifiedAboutDeleted = await telegramNotification.SendAsync(recentlyDeletedAll);
 
