@@ -38,9 +38,9 @@ Join our community and receive information about newly added and deleted tokens,
 
 ### Screens
 
-![Added notification](docs/images/added_info.png)
+![Added notification](docs/images/added_info.jpg)
 
-![Deleted notification](docs/images/deleted_info.png)
+![Deleted notification](docs/images/deleted_info.jpg)
 
 ### How to use
 
@@ -51,9 +51,9 @@ After getting notification from **GemTracker** on Telegram about adding new toke
 Feel free to use provided features, described below:
 
 - Network effect (check how this project is shilling on social media):
-	- *Twitter mentions* - check tweets with symbol of this token,
-	- *Reddit questions* - find out what community says on Reddit,
-	- *4chan hype* - maybe anonymous people are trying to pump this project
+	- *Twitter* - check tweets with symbol or name of this token,
+	- *Reddit* - find out what community says on Reddit,
+	- *4chan* - maybe anonymous people are trying to pump this project
 - Statistics (few metrics from blockchain):
 	- *EthPlorer* - check holders, contract creator, transactions and more
 	- *blockchair* - check when created, in which block and more
