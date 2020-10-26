@@ -11,18 +11,15 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Domain
 {
-    public class U
+    public class Uni
     {
         private readonly IUniswapService _uniswapService;
         private readonly IFileService _fileService;
 
-        public UniswapApiVersion ApiVersion { get; private set; }
-        public UniswapEndpoint UniswapEndpoint { get; private set; }
         public string StorageFilePath { get; private set; }
         public string StorageFilePathDeleted { get; private set; }
         public string StorageFilePathAdded { get; private set; }
-        public IEnumerable<Token> Tokens { get; set; }
-        public U(IUniswapService uniswapService,
+        public Uni(IUniswapService uniswapService,
             IFileService fileService)
         {
             _uniswapService = uniswapService;
@@ -30,13 +27,11 @@ namespace GemTracker.Shared.Domain
         }
         public void SetPaths(string storagePath)
         {
-            ApiVersion = UniswapApiVersion.V2;
-            UniswapEndpoint = UniswapEndpoint.GRAPH;
-            StorageFilePath = C.Storage(storagePath, ApiVersion, UniswapEndpoint);
-            StorageFilePathDeleted = C.StorageDeleted(storagePath, ApiVersion, UniswapEndpoint);
-            StorageFilePathAdded = C.StorageAdded(storagePath, ApiVersion, UniswapEndpoint);
+            StorageFilePath = PathTo.All(storagePath);
+            StorageFilePathDeleted = PathTo.Deleted(storagePath);
+            StorageFilePathAdded = PathTo.Added(storagePath);
         }
-        public async Task<UniswapResponse> FetchFromUniswap()
+        public async Task<UniswapResponse> FetchAllAsync()
         {
             var result = new UniswapResponse();
 
@@ -52,7 +47,7 @@ namespace GemTracker.Shared.Domain
             }
             return result;
         }
-        public async Task<Loaded> LoadFromStorage()
+        public async Task<Loaded> LoadAllAsync()
         {
             var result = new Loaded();
             try

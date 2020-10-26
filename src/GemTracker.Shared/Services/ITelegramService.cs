@@ -1,6 +1,9 @@
-﻿using GemTracker.Shared.Extensions;
+﻿using GemTracker.Shared.Domain.Configs;
+using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services.Responses;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -10,37 +13,60 @@ namespace GemTracker.Shared.Services
 {
     public interface ITelegramService
     {
-        Task<SocialResponse> SendMessageAsync(string message, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendPremiumMessageAsync(string message, IReplyMarkup replyMarkup = null);
     }
 
     public class TelegramService : ITelegramService
     {
-        private readonly ITelegramBotClient _telegramBotClient;
+        private readonly ITelegramBotClient _telegramFree;
+        private readonly ITelegramBotClient _telegramPremium;
 
-        private readonly string _apikey;
-        private readonly string _chatid;
+        private readonly string _freeChatId;
+        private readonly string _premiumChatId;
 
-        public TelegramService(
-            string apikey,
-            string chatid)
+        private readonly bool _isFreeActive;
+        private readonly bool _isPremiumActive;
+
+        public TelegramService(IEnumerable<TelegramConfig> telegramConfigs)
         {
-            _apikey = apikey;
-            _chatid = chatid;
+            var freeAudience = telegramConfigs.FirstOrDefault(t => t.Audience == AudienceType.FREE);
+            _isFreeActive = freeAudience.IsActive;
+            if (_isFreeActive)
+            {
+                _telegramFree = new TelegramBotClient(freeAudience.ApiKey);
+                _freeChatId = freeAudience.ChatId;
+            }
 
-            _telegramBotClient = new TelegramBotClient(apikey);
+            var premiumAudience = telegramConfigs.FirstOrDefault(t => t.Audience == AudienceType.PREMIUM);
+            _isPremiumActive = premiumAudience.IsActive;
+            if (_isPremiumActive)
+            {
+                _telegramPremium = new TelegramBotClient(premiumAudience.ApiKey);
+                _premiumChatId = premiumAudience.ChatId;
+            }
         }
 
-        public async Task<SocialResponse> SendMessageAsync(string message, IReplyMarkup replyMarkup = null)
+        public async Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null)
+            => await SendMessageAsync(message, _freeChatId, _isFreeActive, replyMarkup);
+
+        public async Task<SocialResponse> SendPremiumMessageAsync(string message, IReplyMarkup replyMarkup = null)
+            => await SendMessageAsync(message, _premiumChatId, _isPremiumActive, replyMarkup);
+
+        private async Task<SocialResponse> SendMessageAsync(string message, string chatId, bool isActive, IReplyMarkup replyMarkup)
         {
             var response = new SocialResponse();
             try
             {
-                var s = await _telegramBotClient.SendTextMessageAsync(
-                    _chatid, 
-                    message, 
-                    parseMode: ParseMode.Markdown, 
-                    disableWebPagePreview: true,
-                    replyMarkup: replyMarkup);
+                if(isActive)
+                {
+                    var s = await _telegramFree.SendTextMessageAsync(
+                        chatId,
+                        message,
+                        parseMode: ParseMode.Markdown,
+                        disableWebPagePreview: true,
+                        replyMarkup: replyMarkup);
+                }
 
                 response.Success = true;
             }

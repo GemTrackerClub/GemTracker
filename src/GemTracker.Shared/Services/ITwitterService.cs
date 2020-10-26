@@ -1,4 +1,5 @@
-﻿using GemTracker.Shared.Extensions;
+﻿using Autofac.Builder;
+using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services.Responses;
 using System;
 using System.Threading.Tasks;
@@ -17,6 +18,9 @@ namespace GemTracker.Shared.Services
         private readonly string _apiSecret;
         private readonly string _accessToken;
         private readonly string _accessSecret;
+        private bool _isActive
+            => !string.IsNullOrWhiteSpace(_apiKey) && !string.IsNullOrWhiteSpace(_apiSecret)
+            && !string.IsNullOrWhiteSpace(_accessToken) && !string.IsNullOrWhiteSpace(_accessSecret);
         public TwitterService(
             string apiKey,
             string apiSecret,
@@ -33,9 +37,12 @@ namespace GemTracker.Shared.Services
             var response = new SocialResponse();
             try
             {
-                var userClient = new TwitterClient(_apiKey, _apiSecret, _accessToken, _accessSecret);
+                if(_isActive)
+                {
+                    var userClient = new TwitterClient(_apiKey, _apiSecret, _accessToken, _accessSecret);
 
-                var tweet = await userClient.Tweets.PublishTweetAsync(message);
+                    var tweet = await userClient.Tweets.PublishTweetAsync(message);
+                }
 
                 response.Success = true;
             }

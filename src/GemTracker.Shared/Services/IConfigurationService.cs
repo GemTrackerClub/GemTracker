@@ -21,7 +21,7 @@ namespace GemTracker.Shared.Services
         {
             return new ConfigurationResponse
             {
-                JobConfig = await _fileService.GetAsync<JobConfigFile>(C.JobFilePath(fileName))
+                JobConfig = await _fileService.GetAsync<JobConfigFile>(PathTo.Job(fileName))
             };
         }
     }

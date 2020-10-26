@@ -9,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Domain
 {
-    public class T
+    public class Ntf
     {
         private readonly ITelegramService _telegramService;
         private readonly ITwitterService _twitterService;
-        public T(
+        public Ntf(
             ITelegramService telegramService,
             ITwitterService twitterService)
         {
             _telegramService = telegramService;
             _twitterService = twitterService;
         }
-        public async Task<Notified> Notify(IEnumerable<Gem> gems)
+        public async Task<Notified> SendAsync(IEnumerable<Gem> gems)
         {
             var result = new Notified();
             try
@@ -29,15 +29,15 @@ namespace GemTracker.Shared.Domain
                 {
                     foreach (var gem in gems)
                     {
-                        var msgTg = M.MessageForTelegram(gem);
-                        var sentTg = await _telegramService.SendMessageAsync(msgTg.Item2, msgTg.Item1);
+                        var msgTg = Msg.ForFreeTelegram(gem);
+                        var sentTg = await _telegramService.SendFreeMessageAsync(msgTg.Item2, msgTg.Item1);
 
                         if (!sentTg.Success)
                         {
                             result.Message += $"Telegram Error: {sentTg.Message}";
                         }
 
-                        var msgTw = M.MessageForTwitter(gem);
+                        var msgTw = Msg.ForTwitter(gem);
                         var sentTw = await _twitterService.SendMessageAsync(msgTw);
 
                         if (!sentTw.Success)

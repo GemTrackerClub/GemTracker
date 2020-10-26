@@ -40,16 +40,16 @@ namespace GemTracker.Agent.Jobs
 
                 var cfg = await _configurationService.GetJobConfigAsync(jobConfigFileName);
 
-                var uniswap = new U(_uniswapService, _fileService);
+                var uniswap = new Uni(_uniswapService, _fileService);
                 uniswap.SetPaths(storagePath);
 
-                var latestAll = await uniswap.FetchFromUniswap();
+                var latestAll = await uniswap.FetchAllAsync();
 
                 if (latestAll.Success)
                 {
                     Logger.Info($"V2|GRAPH|LATEST|{latestAll.Tokens.Count()}");
 
-                    var loadedAll = await uniswap.LoadFromStorage();
+                    var loadedAll = await uniswap.LoadAllAsync();
 
                     if (loadedAll.Success)
                     {
@@ -72,16 +72,16 @@ namespace GemTracker.Agent.Jobs
                         {
                             Logger.Info($"V2|GRAPH|TELEGRAM|ON");
 
-                            var telegramNotification = new T(_telegramService, _twitterService);
+                            var telegramNotification = new Ntf(_telegramService, _twitterService);
 
-                            var notifiedAboutDeleted = await telegramNotification.Notify(recentlyDeletedAll);
+                            var notifiedAboutDeleted = await telegramNotification.SendAsync(recentlyDeletedAll);
 
                             if (notifiedAboutDeleted.Success)
                                 Logger.Info($"V2|GRAPH|TELEGRAM|DELETED|SENT");
                             else
                                 Logger.Warn($"V2|GRAPH|TELEGRAM|DELETED|{notifiedAboutDeleted.Message}");
 
-                            var notifiedAboutAdded = await telegramNotification.Notify(recentlyAddedAll);
+                            var notifiedAboutAdded = await telegramNotification.SendAsync(recentlyAddedAll);
 
                             if (notifiedAboutAdded.Success)
                                 Logger.Info($"V2|GRAPH|TELEGRAM|ADDED|SENT");

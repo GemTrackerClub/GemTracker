@@ -36,9 +36,7 @@ namespace GemTracker.Agent.DI
             services.AddTransient<IFileService, FileService>();
 
             services.AddTransient<ITelegramService>(
-                s => new TelegramService(
-                    app.TelegramConfig.ApiKey,
-                    app.TelegramConfig.ChatId));
+                s => new TelegramService(app.Telegram));
             services.AddTransient<ITwitterService>(
                 s => new TwitterService(
                     app.TwitterConfig.ApiKey,
