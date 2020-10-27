@@ -2,7 +2,6 @@
 using GemTracker.Shared.Extensions;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -21,7 +20,8 @@ namespace GemTracker.Shared.Domain
                 $" {emoji} {tokenAction.GetDescription()} \n\n" +
                 $"💎 {gems.Count()} Tokens\n" +
                 $"🚨 Some of them: {string.Join(" ", gems.Take(5).Select(g => $"${g.Symbol}"))}\n\n" +
-                $"Join us for more details: https://t.me/GemTrackerClub \n" +
+                $"Join for free: https://t.me/GemTrackerClub \n" +
+                $"💰 Ask for premium: https://gemtracker.club/#premium \n" +
                 $"( $BTC $ETH $ALTS $UNI #uniswap #cryptocurrency #gem #gemtrackerclub )";
 
             return result;
