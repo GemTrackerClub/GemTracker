@@ -2,6 +2,7 @@
 using GemTracker.Shared.Extensions;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -37,7 +38,8 @@ namespace GemTracker.Shared.Domain
                 $"🚨 Symbol: ${gem.Symbol}\n" +
                 $"🦄 Uniswap: https://uniswap.info/token/{gem.Id} \n" +
                 $"🔎 EthScan: https://etherscan.io/token/{gem.Id} \n" +
-                $"Join: https://t.me/GemTrackerClub \n" +
+                $"Join for free: https://t.me/GemTrackerClub \n" +
+                $"💰 Ask for premium: https://gemtracker.club/#premium \n" +
                 $"( $BTC $ETH $ALTS $UNI #uniswap #cryptocurrency #gem)\n";
 
             return result;
@@ -123,10 +125,42 @@ namespace GemTracker.Shared.Domain
             return result;
         }
 
-        public static Tuple<IReplyMarkup, string> ForPremiumTelegram(Gem gem)
+        public static Tuple<IReplyMarkup, string> ForPremiumTelegram(Gem gem, TokenData tokenData, IEnumerable<PairData> pairs)
         {
+            var tokenInfo
+                = gem.Recently == TokenAction.DELETED
+                ? string.Empty
+                :
+                $"🥇 *Token - ${gem.Symbol}*\n" +
+                $"Initial Price: _${tokenData.Price} USD_\n" +
+                $"Txns: _{tokenData.DailyTxns}_\n\n" +
+                $"🥈 *Liquidity*\n" +
+                $"USD: _${tokenData.LiquidityUSD}_\n" +
+                $"ETH: _{tokenData.LiquidityETH}_\n" +
+                $"{gem.Symbol}: _{tokenData.LiquidityToken}_\n\n";
+
+            var formPair = $"🥉 *Pairs*\n";
+
+            foreach (var item in pairs)
+            {
+                formPair += 
+                    $"`{item.Token0.Symbol}/{item.Token1.Symbol}`\n" +
+                    $"Total value: _${item.TotalLiquidityUSD} USD_\n" +
+                    $"Created at: _{item.CreatedAt:dd.MM.yyyy}_\n" +
+                    $"[Uniswap](https://info.uniswap.org/pair/{item.Id}) |" +
+                    $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
+                    $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
+                    $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
+                    $"\n";
+            }
+
             var banner =
-                Content(gem);
+                Content(gem) + 
+                tokenInfo +
+                (gem.Recently == TokenAction.DELETED
+                ? string.Empty
+                :
+                formPair);
 
             var buttons = new InlineKeyboardMarkup(new[]
             {
@@ -146,7 +180,11 @@ namespace GemTracker.Shared.Domain
                 Content(gem) +
                 $"👨‍👦‍👦 Our community:\n" +
                 $"Chat - @GemTrackerCommunity\n" +
-                $"Info - @GemTrackerAnnouncements\n";
+                $"Info - @GemTrackerAnnouncements\n\n" +
+                $"📣 Ask for premium access and get:\n" +
+                $"- info about *price, liquidity, txns, swaps*\n" +
+                $"- links to *DEXT, Astro and UniCrypt*\n" +
+                $"- insights about valueable gem or shitty scam";
 
             var buttons = new InlineKeyboardMarkup(new[]
             {

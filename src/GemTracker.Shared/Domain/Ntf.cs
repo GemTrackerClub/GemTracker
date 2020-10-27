@@ -30,15 +30,34 @@ namespace GemTracker.Shared.Domain
                 {
                     foreach (var gem in gems)
                     {
+                        Thread.Sleep(1000); // to not fall in api limits
+
+                        var tokenData = await _uniswapService.FetchTokenAsync(gem.Id);
+
+                        Thread.Sleep(1000);
+
+                        var pairData = await _uniswapService.FetchPairsAsync(gem.Id);
+
+                        if(tokenData.Success && pairData.Success)
+                        {
+                            var msgPr = Msg.ForPremiumTelegram(gem, tokenData.TokenData, pairData.Pairs);
+
+                            var sentPr = await _telegramService.SendPremiumMessageAsync(msgPr.Item2, msgPr.Item1);
+
+                            if (!sentPr.Success)
+                            {
+                                result.Message += $"Telegram Error: {sentPr.Message}";
+                            }
+                        }
+
                         var msgTg = Msg.ForFreeTelegram(gem);
-                        var sentTg = await _telegramService.SendFreeMessageAsync(msgTg.Item2, null, msgTg.Item1);
+
+                        var sentTg = await _telegramService.SendFreeMessageAsync(msgTg.Item2, msgTg.Item1);
 
                         if (!sentTg.Success)
                         {
                             result.Message += $"Telegram Error: {sentTg.Message}";
                         }
-
-                        Thread.Sleep(500); // to not fall in api limits
                     }
                 }
                 else

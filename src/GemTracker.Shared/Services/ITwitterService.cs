@@ -1,5 +1,4 @@
-﻿using Autofac.Builder;
-using GemTracker.Shared.Extensions;
+﻿using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services.Responses;
 using System;
 using System.Threading.Tasks;
@@ -37,7 +36,7 @@ namespace GemTracker.Shared.Services
             var response = new SocialResponse();
             try
             {
-                if(_isActive)
+                if (_isActive)
                 {
                     var userClient = new TwitterClient(_apiKey, _apiSecret, _accessToken, _accessSecret);
 

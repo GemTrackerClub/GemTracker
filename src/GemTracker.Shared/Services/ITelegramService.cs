@@ -13,8 +13,8 @@ namespace GemTracker.Shared.Services
 {
     public interface ITelegramService
     {
-        Task<SocialResponse> SendFreeMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null);
-        Task<SocialResponse> SendPremiumMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendPremiumMessageAsync(string message, IReplyMarkup replyMarkup = null);
     }
 
     public class TelegramService : ITelegramService
@@ -30,14 +30,6 @@ namespace GemTracker.Shared.Services
 
         public TelegramService(IEnumerable<TelegramConfig> telegramConfigs)
         {
-            var freeAudience = telegramConfigs.FirstOrDefault(t => t.Audience == AudienceType.FREE);
-            _isFreeActive = freeAudience.IsActive;
-            if (_isFreeActive)
-            {
-                _telegramFree = new TelegramBotClient(freeAudience.ApiKey);
-                _freeChatId = freeAudience.ChatId;
-            }
-
             var premiumAudience = telegramConfigs.FirstOrDefault(t => t.Audience == AudienceType.PREMIUM);
             _isPremiumActive = premiumAudience.IsActive;
             if (_isPremiumActive)
@@ -45,30 +37,54 @@ namespace GemTracker.Shared.Services
                 _telegramPremium = new TelegramBotClient(premiumAudience.ApiKey);
                 _premiumChatId = premiumAudience.ChatId;
             }
+
+            var freeAudience = telegramConfigs.FirstOrDefault(t => t.Audience == AudienceType.FREE);
+            _isFreeActive = freeAudience.IsActive;
+            if (_isFreeActive)
+            {
+                _telegramFree = new TelegramBotClient(freeAudience.ApiKey);
+                _freeChatId = freeAudience.ChatId;
+            }
         }
 
-        public async Task<SocialResponse> SendFreeMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null)
-            => await SendMessageAsync(message, _freeChatId, _isFreeActive, messageId, replyMarkup);
-
-        public async Task<SocialResponse> SendPremiumMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null)
-            => await SendMessageAsync(message, _premiumChatId, _isPremiumActive, messageId, replyMarkup);
-
-        private async Task<SocialResponse> SendMessageAsync(string message, string chatId, bool isActive, int? messageId, IReplyMarkup replyMarkup)
+        public async Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null)
         {
             var response = new SocialResponse();
             try
             {
-                if(isActive)
+                if (_isFreeActive)
                 {
                     var s = await _telegramFree.SendTextMessageAsync(
-                        chatId,
+                        _freeChatId,
                         message,
                         parseMode: ParseMode.Markdown,
                         disableWebPagePreview: true,
-                        replyToMessageId: messageId.HasValue ? messageId.Value : 0,
                         replyMarkup: replyMarkup);
+                }
 
-                    response.MessageId = s.MessageId;
+                response.Success = true;
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.GetFullMessage();
+            }
+            return response;
+        }
+
+        public async Task<SocialResponse> SendPremiumMessageAsync(string message, IReplyMarkup replyMarkup = null)
+        {
+            var response = new SocialResponse();
+            try
+            {
+                if (_isPremiumActive)
+                {
+                    var s = await _telegramPremium.SendTextMessageAsync(
+                        _premiumChatId,
+                        message,
+                        parseMode: ParseMode.Markdown,
+                        disableWebPagePreview: true,
+                        replyMarkup: replyMarkup);
                 }
 
                 response.Success = true;
