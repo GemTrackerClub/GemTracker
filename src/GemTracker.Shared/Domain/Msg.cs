@@ -19,7 +19,7 @@ namespace GemTracker.Shared.Domain
                 $"🦄 Uniswap (for last {interval / 60} h) \n\n" +
                 $" {emoji} {tokenAction.GetDescription()} \n\n" +
                 $"💎 {gems.Count()} Tokens\n" +
-                $"🚨 Some of them: ${string.Join(" ", gems.Take(5).Select(g => $"${g.Symbol}"))}\n\n" +
+                $"🚨 Some of them: {string.Join(" ", gems.Take(5).Select(g => $"${g.Symbol}"))}\n\n" +
                 $"Join us for more details: https://t.me/GemTrackerClub \n" +
                 $"( $BTC $ETH $ALTS $UNI #uniswap #cryptocurrency #gem #gemtrackerclub )";
 

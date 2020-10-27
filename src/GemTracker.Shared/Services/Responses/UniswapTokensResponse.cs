@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace GemTracker.Shared.Services.Responses
 {
-    public class UniswapResponse
+    public class UniswapTokensResponse
     {
         public IEnumerable<Token> Tokens { get; set; }
         public string Message { get; set; }

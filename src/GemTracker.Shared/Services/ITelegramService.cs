@@ -13,8 +13,8 @@ namespace GemTracker.Shared.Services
 {
     public interface ITelegramService
     {
-        Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null);
-        Task<SocialResponse> SendPremiumMessageAsync(string message, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendFreeMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendPremiumMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null);
     }
 
     public class TelegramService : ITelegramService
@@ -47,13 +47,13 @@ namespace GemTracker.Shared.Services
             }
         }
 
-        public async Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null)
-            => await SendMessageAsync(message, _freeChatId, _isFreeActive, replyMarkup);
+        public async Task<SocialResponse> SendFreeMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null)
+            => await SendMessageAsync(message, _freeChatId, _isFreeActive, messageId, replyMarkup);
 
-        public async Task<SocialResponse> SendPremiumMessageAsync(string message, IReplyMarkup replyMarkup = null)
-            => await SendMessageAsync(message, _premiumChatId, _isPremiumActive, replyMarkup);
+        public async Task<SocialResponse> SendPremiumMessageAsync(string message, int? messageId = null, IReplyMarkup replyMarkup = null)
+            => await SendMessageAsync(message, _premiumChatId, _isPremiumActive, messageId, replyMarkup);
 
-        private async Task<SocialResponse> SendMessageAsync(string message, string chatId, bool isActive, IReplyMarkup replyMarkup)
+        private async Task<SocialResponse> SendMessageAsync(string message, string chatId, bool isActive, int? messageId, IReplyMarkup replyMarkup)
         {
             var response = new SocialResponse();
             try
@@ -65,7 +65,10 @@ namespace GemTracker.Shared.Services
                         message,
                         parseMode: ParseMode.Markdown,
                         disableWebPagePreview: true,
+                        replyToMessageId: messageId.HasValue ? messageId.Value : 0,
                         replyMarkup: replyMarkup);
+
+                    response.MessageId = s.MessageId;
                 }
 
                 response.Success = true;

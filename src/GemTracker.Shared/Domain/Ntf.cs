@@ -4,6 +4,7 @@ using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,10 +13,13 @@ namespace GemTracker.Shared.Domain
     public class Ntf
     {
         private readonly ITelegramService _telegramService;
+        private readonly IUniswapService _uniswapService;
         public Ntf(
-            ITelegramService telegramService)
+            ITelegramService telegramService,
+            IUniswapService uniswapService)
         {
             _telegramService = telegramService;
+            _uniswapService = uniswapService;
         }
         public async Task<Notified> SendAsync(IEnumerable<Gem> gems)
         {
@@ -27,14 +31,14 @@ namespace GemTracker.Shared.Domain
                     foreach (var gem in gems)
                     {
                         var msgTg = Msg.ForFreeTelegram(gem);
-                        var sentTg = await _telegramService.SendFreeMessageAsync(msgTg.Item2, msgTg.Item1);
+                        var sentTg = await _telegramService.SendFreeMessageAsync(msgTg.Item2, null, msgTg.Item1);
 
                         if (!sentTg.Success)
                         {
                             result.Message += $"Telegram Error: {sentTg.Message}";
                         }
 
-                        Thread.Sleep(1000); // to not fall in api limits
+                        Thread.Sleep(500); // to not fall in api limits
                     }
                 }
                 else

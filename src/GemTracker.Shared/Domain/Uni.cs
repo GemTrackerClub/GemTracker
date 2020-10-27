@@ -31,9 +31,9 @@ namespace GemTracker.Shared.Domain
             StorageFilePathDeleted = PathTo.Deleted(storagePath);
             StorageFilePathAdded = PathTo.Added(storagePath);
         }
-        public async Task<UniswapResponse> FetchAllAsync()
+        public async Task<UniswapTokensResponse> FetchAllAsync()
         {
-            var result = new UniswapResponse();
+            var result = new UniswapTokensResponse();
 
             var response = await _uniswapService.FetchAllAsync();
 
