@@ -41,11 +41,13 @@ namespace GemTracker.Shared.Domain
 
                         var tokenData = await _uniswapService.FetchTokenAsync(gem.Id);
 
+                        var holdersData = await _ethPlorerService.FetchTopHolders(gem.Id);
+
                         Thread.Sleep(1000);
 
                         var pairData = await _uniswapService.FetchPairsAsync(gem.Id);
 
-                        var msgPr = Msg.ForPremiumTelegram(gem, tokenData, pairData, contractData);
+                        var msgPr = Msg.ForPremiumTelegram(gem, tokenData, pairData, contractData, holdersData);
 
                         var sentPr = await _telegramService.SendPremiumMessageAsync(msgPr.Item2, msgPr.Item1);
 

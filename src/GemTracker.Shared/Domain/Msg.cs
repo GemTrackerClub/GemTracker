@@ -130,8 +130,29 @@ namespace GemTracker.Shared.Domain
             Gem gem,
             UniswapTokenDataResponse uniResponse,
             UniswapPairDataResponse pairResponse,
-            EtherScanResponse etherScanResponse)
+            EtherScanResponse etherScanResponse,
+            EthPlorerTopHoldersResponse ethPlorerTopHoldersResponse)
         {
+            string topHoldersInfo = string.Empty;
+
+            if(ethPlorerTopHoldersResponse.Success)
+            {
+                var holders = $"🌐 *Current hodlers*: {ethPlorerTopHoldersResponse.HolderList.Holders.Count()}.\n" +
+                    $"Top below:\n";
+
+                var counter = 1;
+
+                foreach (var item in ethPlorerTopHoldersResponse.HolderList.Holders)
+                {
+                    holders += $"[Hodler - {counter++}](https://etherscan.io/token/{gem.Id}?a={item.Address}) - `{item.Share}%` \n";
+                }
+
+                topHoldersInfo
+                    = gem.Recently == TokenAction.DELETED
+                    ? string.Empty
+                    : $"{holders}\n\n";
+            }
+
             string tokenInfo = string.Empty;
 
             if(uniResponse.Success)
@@ -162,10 +183,11 @@ namespace GemTracker.Shared.Domain
                     : $"❌ [Contract](https://etherscan.io/address/{gem.Id}) is NOT verified \n\n");
             }
 
-            var formPair = $"🥉 *Pairs*\n";
+            var formPair = string.Empty;
 
             if(pairResponse.Success)
             {
+                formPair = $"🥉 *Pairs*\n";
                 foreach (var item in pairResponse.Pairs)
                 {
                     formPair +=
@@ -176,7 +198,7 @@ namespace GemTracker.Shared.Domain
                         $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
                         $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
                         $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
-                        $"\n";
+                        $"\n\n";
                 }
             }
 
@@ -187,7 +209,8 @@ namespace GemTracker.Shared.Domain
                 (gem.Recently == TokenAction.DELETED
                 ? string.Empty
                 :
-                formPair);
+                formPair) +
+                topHoldersInfo;
 
             var buttons = new InlineKeyboardMarkup(new[]
             {
