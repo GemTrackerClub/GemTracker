@@ -209,7 +209,7 @@ namespace GemTracker.Shared.Domain
                 $"Chat - @GemTrackerCommunity\n" +
                 $"Info - @GemTrackerAnnouncements\n\n" +
                 $"📣 Ask for premium access and get:\n" +
-                $"- info about *price, liquidity, contract, txns, swaps*\n" +
+                $"- info about *price, liquidity, contract, holders, txns, swaps*\n" +
                 $"- links to *DEXT, Astro and UniCrypt*\n" +
                 $"- insights about valueable gem or shitty scam";
 

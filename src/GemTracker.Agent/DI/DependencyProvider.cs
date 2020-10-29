@@ -47,6 +47,8 @@ namespace GemTracker.Agent.DI
                     ));
             services.AddTransient<IEtherScanService>(
                 s => new EtherScanService(app.EtherScan.ApiKey));
+            services.AddTransient<IEthPlorerService>(
+                s => new EthPlorerService(app.EthPlorer.ApiKey));
             #endregion
 
             var serviceProvider = services.BuildServiceProvider();

@@ -4,7 +4,6 @@ using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,14 +14,17 @@ namespace GemTracker.Shared.Domain
         private readonly ITelegramService _telegramService;
         private readonly IUniswapService _uniswapService;
         private readonly IEtherScanService _etherScanService;
+        private readonly IEthPlorerService _ethPlorerService;
         public Ntf(
             ITelegramService telegramService,
             IUniswapService uniswapService,
-            IEtherScanService etherScanService)
+            IEtherScanService etherScanService,
+            IEthPlorerService ethPlorerService)
         {
             _telegramService = telegramService;
             _uniswapService = uniswapService;
             _etherScanService = etherScanService;
+            _ethPlorerService = ethPlorerService;
         }
         public async Task<Notified> SendAsync(IEnumerable<Gem> gems)
         {

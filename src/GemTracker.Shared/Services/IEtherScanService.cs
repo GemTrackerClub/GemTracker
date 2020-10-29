@@ -47,7 +47,6 @@ namespace GemTracker.Shared.Services
             }
             return result;
         }
-
         private string ConstructRequest(Dictionary<string, object> parameters)
         {
             parameters.Add("apiKey", _apiKey);

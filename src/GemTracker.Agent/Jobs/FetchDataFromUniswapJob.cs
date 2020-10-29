@@ -18,18 +18,21 @@ namespace GemTracker.Agent.Jobs
         private readonly IFileService _fileService;
         private readonly ITelegramService _telegramService;
         private readonly IEtherScanService _etherScanService;
+        private readonly IEthPlorerService _ethPlorerService;
         public FetchDataFromUniswapJob(
             IConfigurationService configurationService,
             IUniswapService uniswapService,
             IFileService fileService,
             ITelegramService telegramService,
-            IEtherScanService etherScanService)
+            IEtherScanService etherScanService,
+            IEthPlorerService ethPlorerService)
         {
             _configurationService = configurationService;
             _uniswapService = uniswapService;
             _fileService = fileService;
             _telegramService = telegramService;
             _etherScanService = etherScanService;
+            _ethPlorerService = ethPlorerService;
         }
         public async Task Execute(IJobExecutionContext context)
         {
@@ -72,7 +75,11 @@ namespace GemTracker.Agent.Jobs
                         {
                             Logger.Info($"V2|GRAPH|TELEGRAM|ON");
 
-                            var telegramNotification = new Ntf(_telegramService, _uniswapService, _etherScanService);
+                            var telegramNotification = new Ntf(
+                                _telegramService,
+                                _uniswapService,
+                                _etherScanService,
+                                _ethPlorerService);
 
                             var notifiedAboutDeleted = await telegramNotification.SendAsync(recentlyDeletedAll);
 
