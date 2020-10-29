@@ -1,5 +1,6 @@
 ﻿using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
+using GemTracker.Shared.Services.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -125,38 +126,64 @@ namespace GemTracker.Shared.Domain
             return result;
         }
 
-        public static Tuple<IReplyMarkup, string> ForPremiumTelegram(Gem gem, TokenData tokenData, IEnumerable<PairData> pairs)
+        public static Tuple<IReplyMarkup, string> ForPremiumTelegram(
+            Gem gem,
+            UniswapTokenDataResponse uniResponse,
+            UniswapPairDataResponse pairResponse,
+            EtherScanResponse etherScanResponse)
         {
-            var tokenInfo
-                = gem.Recently == TokenAction.DELETED
-                ? string.Empty
-                :
-                $"🥇 *Token - ${gem.Symbol}*\n" +
-                $"Initial Price: _${tokenData.Price} USD_\n" +
-                $"Txns: _{tokenData.DailyTxns}_\n\n" +
-                $"🥈 *Liquidity*\n" +
-                $"USD: _${tokenData.LiquidityUSD}_\n" +
-                $"ETH: _{tokenData.LiquidityETH}_\n" +
-                $"{gem.Symbol}: _{tokenData.LiquidityToken}_\n\n";
+            string tokenInfo = string.Empty;
+
+            if(uniResponse.Success)
+            {
+                tokenInfo
+                    = gem.Recently == TokenAction.DELETED
+                    ? string.Empty
+                    :
+                    $"🥇 *Token - ${gem.Symbol}*\n" +
+                    $"Initial Price: _${uniResponse.TokenData.Price} USD_\n" +
+                    $"Txns: _{uniResponse.TokenData.DailyTxns}_\n\n" +
+                    $"🥈 *Liquidity*\n" +
+                    $"USD: _${uniResponse.TokenData.LiquidityUSD}_\n" +
+                    $"ETH: _{uniResponse.TokenData.LiquidityETH}_\n" +
+                    $"{gem.Symbol}: _{uniResponse.TokenData.LiquidityToken}_\n\n";
+            }
+
+            string contractInfo = string.Empty;
+
+            if(etherScanResponse.Success)
+            {
+                contractInfo
+                    = gem.Recently == TokenAction.DELETED
+                    ? string.Empty
+                    : 
+                    (etherScanResponse.Contract.IsVerified
+                    ? $"✅ [Contract](https://etherscan.io/address/{gem.Id}) is verified \n\n"
+                    : $"❌ [Contract](https://etherscan.io/address/{gem.Id}) is NOT verified \n\n");
+            }
 
             var formPair = $"🥉 *Pairs*\n";
 
-            foreach (var item in pairs)
+            if(pairResponse.Success)
             {
-                formPair += 
-                    $"`{item.Token0.Symbol}/{item.Token1.Symbol}`\n" +
-                    $"Total value: _${item.TotalLiquidityUSD} USD_\n" +
-                    $"Created at: _{item.CreatedAt:dd.MM.yyyy}_\n" +
-                    $"[Uniswap](https://info.uniswap.org/pair/{item.Id}) |" +
-                    $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
-                    $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
-                    $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
-                    $"\n";
+                foreach (var item in pairResponse.Pairs)
+                {
+                    formPair +=
+                        $"`{item.Token0.Symbol}/{item.Token1.Symbol}`\n" +
+                        $"Total value: _${item.TotalLiquidityUSD} USD_\n" +
+                        $"Created at: _{item.CreatedAt:dd.MM.yyyy}_\n" +
+                        $"[Uniswap](https://info.uniswap.org/pair/{item.Id}) |" +
+                        $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
+                        $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
+                        $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
+                        $"\n";
+                }
             }
 
             var banner =
                 Content(gem) + 
                 tokenInfo +
+                contractInfo +
                 (gem.Recently == TokenAction.DELETED
                 ? string.Empty
                 :
@@ -182,7 +209,7 @@ namespace GemTracker.Shared.Domain
                 $"Chat - @GemTrackerCommunity\n" +
                 $"Info - @GemTrackerAnnouncements\n\n" +
                 $"📣 Ask for premium access and get:\n" +
-                $"- info about *price, liquidity, txns, swaps*\n" +
+                $"- info about *price, liquidity, contract, txns, swaps*\n" +
                 $"- links to *DEXT, Astro and UniCrypt*\n" +
                 $"- insights about valueable gem or shitty scam";
 

@@ -14,12 +14,15 @@ namespace GemTracker.Shared.Domain
     {
         private readonly ITelegramService _telegramService;
         private readonly IUniswapService _uniswapService;
+        private readonly IEtherScanService _etherScanService;
         public Ntf(
             ITelegramService telegramService,
-            IUniswapService uniswapService)
+            IUniswapService uniswapService,
+            IEtherScanService etherScanService)
         {
             _telegramService = telegramService;
             _uniswapService = uniswapService;
+            _etherScanService = etherScanService;
         }
         public async Task<Notified> SendAsync(IEnumerable<Gem> gems)
         {
@@ -30,6 +33,8 @@ namespace GemTracker.Shared.Domain
                 {
                     foreach (var gem in gems)
                     {
+                        var contractData = await _etherScanService.IsSmartContractVerifiedAsync(gem.Id);
+
                         Thread.Sleep(1000); // to not fall in api limits
 
                         var tokenData = await _uniswapService.FetchTokenAsync(gem.Id);
@@ -38,16 +43,13 @@ namespace GemTracker.Shared.Domain
 
                         var pairData = await _uniswapService.FetchPairsAsync(gem.Id);
 
-                        if(tokenData.Success && pairData.Success)
+                        var msgPr = Msg.ForPremiumTelegram(gem, tokenData, pairData, contractData);
+
+                        var sentPr = await _telegramService.SendPremiumMessageAsync(msgPr.Item2, msgPr.Item1);
+
+                        if (!sentPr.Success)
                         {
-                            var msgPr = Msg.ForPremiumTelegram(gem, tokenData.TokenData, pairData.Pairs);
-
-                            var sentPr = await _telegramService.SendPremiumMessageAsync(msgPr.Item2, msgPr.Item1);
-
-                            if (!sentPr.Success)
-                            {
-                                result.Message += $"Telegram Error: {sentPr.Message}";
-                            }
+                            result.Message += $"Telegram Premium Error: {sentPr.Message}";
                         }
 
                         var msgTg = Msg.ForFreeTelegram(gem);
@@ -56,7 +58,7 @@ namespace GemTracker.Shared.Domain
 
                         if (!sentTg.Success)
                         {
-                            result.Message += $"Telegram Error: {sentTg.Message}";
+                            result.Message += $"Telegram Free Error: {sentTg.Message}";
                         }
                     }
                 }

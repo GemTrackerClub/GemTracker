@@ -45,6 +45,8 @@ namespace GemTracker.Agent.DI
                     app.TwitterConfig.AccessToken,
                     app.TwitterConfig.AccessSecret
                     ));
+            services.AddTransient<IEtherScanService>(
+                s => new EtherScanService(app.EtherScan.ApiKey));
             #endregion
 
             var serviceProvider = services.BuildServiceProvider();

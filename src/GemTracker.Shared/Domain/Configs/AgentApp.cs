@@ -8,5 +8,6 @@ namespace GemTracker.Shared.Domain.Configs
         public IEnumerable<Job> Jobs { get; set; }
         public IEnumerable<TelegramConfig> Telegram { get; set; }
         public TwitterConfig TwitterConfig { get; set; }
+        public EtherScanConfig EtherScan { get; set; }
     }
 }
