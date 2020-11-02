@@ -2,6 +2,7 @@
 using GemTracker.Shared.Domain.Models;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
+using GemTracker.Shared.Services.Responses;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -35,19 +36,28 @@ namespace GemTracker.Shared.Domain
                 {
                     foreach (var gem in gems)
                     {
-                        var contractData = await _etherScanService.IsSmartContractVerifiedAsync(gem.Id);
+                        Task<UniswapTokenDataResponse> uniTokenTask = null;
+                        Task<EthPlorerTokenInfoResponse> tokenInfoTask = null;
+                        Task<EtherScanResponse> contractTask = null;
+                        Task<UniswapPairDataResponse> pairTask = null;
+                        Task<EthPlorerTopHoldersResponse> holdersTask = null;
 
-                        Thread.Sleep(1000); // to not fall in api limits
+                        await TaskExt.Sequence(
+                            () => { return uniTokenTask = _uniswapService.FetchTokenAsync(gem.Id); },
+                            () => { return tokenInfoTask = _ethPlorerService.FetchTokenInfoAsync(gem.Id); },
+                            () => { return contractTask = _etherScanService.IsSmartContractVerifiedAsync(gem.Id); },
+                            () => { return Task.Delay(1000); },
+                            () => { return pairTask = _uniswapService.FetchPairsAsync(gem.Id); },
+                            () => { return holdersTask = _ethPlorerService.FetchTopHoldersAsync(gem.Id, 5); }
+                        );
 
-                        var tokenData = await _uniswapService.FetchTokenAsync(gem.Id);
-
-                        var holdersData = await _ethPlorerService.FetchTopHolders(gem.Id);
-
-                        Thread.Sleep(1000);
-
-                        var pairData = await _uniswapService.FetchPairsAsync(gem.Id);
-
-                        var msgPr = Msg.ForPremiumTelegram(gem, tokenData, pairData, contractData, holdersData);
+                        var msgPr = Msg.ForPremiumTelegram(
+                            gem,
+                            uniTokenTask.Result,
+                            tokenInfoTask.Result,
+                            contractTask.Result,
+                            pairTask.Result,
+                            holdersTask.Result);
 
                         var sentPr = await _telegramService.SendPremiumMessageAsync(msgPr.Item2, msgPr.Item1);
 

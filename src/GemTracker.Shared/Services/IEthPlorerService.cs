@@ -12,7 +12,8 @@ namespace GemTracker.Shared.Services
 {
     public interface IEthPlorerService
     {
-        Task<EthPlorerTopHoldersResponse> FetchTopHolders(string contractAddress, int numberOfHolders = 100);
+        Task<EthPlorerTopHoldersResponse> FetchTopHoldersAsync(string contractAddress, int numberOfHolders = 100);
+        Task<EthPlorerTokenInfoResponse> FetchTokenInfoAsync(string contractAddress);
     }
     public class EthPlorerService : IEthPlorerService
     {
@@ -23,7 +24,27 @@ namespace GemTracker.Shared.Services
         {
             _apiKey = apiKey;
         }
-        public async Task<EthPlorerTopHoldersResponse> FetchTopHolders(string contractAddress, int numberOfHolders = 100)
+
+        public async Task<EthPlorerTokenInfoResponse> FetchTokenInfoAsync(string contractAddress)
+        {
+            var result = new EthPlorerTokenInfoResponse();
+            var parameters = new Dictionary<string, object>();
+            try
+            {
+                using var client = new WebClient();
+                string httpApiResult = await client.DownloadStringTaskAsync(
+                    ConstructRequest("getTokenInfo", contractAddress, parameters));
+
+                result.TokenInfo = JsonSerializer.Deserialize<TokenInfo>(httpApiResult);
+            }
+            catch (Exception ex)
+            {
+                result.Message = ex.GetFullMessage();
+            }
+            return result;
+        }
+
+        public async Task<EthPlorerTopHoldersResponse> FetchTopHoldersAsync(string contractAddress, int numberOfHolders = 100)
         {
             var result = new EthPlorerTopHoldersResponse();
             var parameters = new Dictionary<string, object>()

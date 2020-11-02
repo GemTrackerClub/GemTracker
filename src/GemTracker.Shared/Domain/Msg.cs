@@ -1,9 +1,11 @@
-﻿using GemTracker.Shared.Domain.DTOs;
+﻿using GemTracker.Shared.Converters;
+using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace GemTracker.Shared.Domain
@@ -45,12 +47,10 @@ namespace GemTracker.Shared.Domain
 
             return result;
         }
-
         private static string RecentlyEmoji(Gem gem)
             => gem.Recently == TokenAction.ADDED
                 ? "✅"
                 : "❌";
-
         private static InlineKeyboardButton[] UniswapButtons(Gem gem)
         {
             var buyOrNot
@@ -65,7 +65,6 @@ namespace GemTracker.Shared.Domain
                     InlineKeyboardButton.WithUrl("📈 Sell", $"https://app.uniswap.org/#/swap?inputCurrency={gem.Id}"),
                 };
         }
-
         private static InlineKeyboardButton[] EtherscanButtons(Gem gem)
             => new[]
                 {
@@ -73,7 +72,6 @@ namespace GemTracker.Shared.Domain
                     InlineKeyboardButton.WithUrl("📋 Contract", $"https://etherscan.io/address/{gem.Id}"),
                     InlineKeyboardButton.WithUrl("🤑 Hodlers", $"https://etherscan.io/token/{gem.Id}#balances"),
                 };
-
         private static string Content(Gem gem)
         {
             var networkEffectVisible
@@ -125,91 +123,144 @@ namespace GemTracker.Shared.Domain
 
             return result;
         }
-
         public static Tuple<IReplyMarkup, string> ForPremiumTelegram(
             Gem gem,
             UniswapTokenDataResponse uniResponse,
-            UniswapPairDataResponse pairResponse,
+            EthPlorerTokenInfoResponse ethPlorerTokenInfoResponse,
             EtherScanResponse etherScanResponse,
-            EthPlorerTopHoldersResponse ethPlorerTopHoldersResponse)
+            UniswapPairDataResponse pairResponse,
+            EthPlorerTopHoldersResponse ethPlorerTopHoldersResponse
+            )
         {
-            string topHoldersInfo = string.Empty;
-
-            if(ethPlorerTopHoldersResponse.Success)
-            {
-                var holders = $"🌐 *Current hodlers*: {ethPlorerTopHoldersResponse.HolderList.Holders.Count()}.\n" +
-                    $"Top below:\n";
-
-                var counter = 1;
-
-                foreach (var item in ethPlorerTopHoldersResponse.HolderList.Holders)
-                {
-                    holders += $"[Hodler - {counter++}](https://etherscan.io/token/{gem.Id}?a={item.Address}) - `{item.Share}%` \n";
-                }
-
-                topHoldersInfo
-                    = gem.Recently == TokenAction.DELETED
-                    ? string.Empty
-                    : $"{holders}\n\n";
-            }
-
             string tokenInfo = string.Empty;
 
-            if(uniResponse.Success)
+            if (gem.Recently == TokenAction.ADDED)
             {
-                tokenInfo
-                    = gem.Recently == TokenAction.DELETED
-                    ? string.Empty
-                    :
-                    $"🥇 *Token - ${gem.Symbol}*\n" +
-                    $"Initial Price: _${uniResponse.TokenData.Price} USD_\n" +
-                    $"Txns: _{uniResponse.TokenData.DailyTxns}_\n\n" +
-                    $"🥈 *Liquidity*\n" +
-                    $"USD: _${uniResponse.TokenData.LiquidityUSD}_\n" +
-                    $"ETH: _{uniResponse.TokenData.LiquidityETH}_\n" +
-                    $"{gem.Symbol}: _{uniResponse.TokenData.LiquidityToken}_\n\n";
+                tokenInfo = $"🥇 *Token - ${gem.Symbol}*\n";
+
+                if (uniResponse.Success)
+                {
+                    tokenInfo +=
+                        $"Initial Price: _${uniResponse.TokenData.Price} USD_\n" +
+                        $"Txns: _{uniResponse.TokenData.DailyTxns}_\n\n";
+                }
+                else
+                    tokenInfo += $"`Data unavailable` \n\n";
+            }
+
+            string tokenInfoDetails = string.Empty;
+
+            if (gem.Recently == TokenAction.ADDED)
+            {
+                tokenInfoDetails += $"🥇 *Token Details*\n";
+
+                if (ethPlorerTokenInfoResponse.Success)
+                {
+                    var dec = Convert.ToInt32(ethPlorerTokenInfoResponse.TokenInfo.Decimals);
+                    var val = BigInteger.Parse(ethPlorerTokenInfoResponse.TokenInfo.TotalSupply);
+
+                    tokenInfoDetails +=
+                        $"Transfers: _{ethPlorerTokenInfoResponse.TokenInfo.TransfersCount}_\n" +
+                        $"Owner: [{ethPlorerTokenInfoResponse.TokenInfo.Owner}](https://etherscan.io/address/{gem.Id})\n" +
+                        $"Total supply: _{UnitConversion.Convert.FromWei(val, dec)}_ {gem.Symbol} \n\n";
+                }
+                else
+                    tokenInfoDetails += $"`Data unavailable` \n\n";
+            }
+
+            string liquidityInfo = string.Empty;
+
+            if (gem.Recently == TokenAction.ADDED)
+            {
+                liquidityInfo = $"🥈 *Liquidity*\n";
+
+                if (uniResponse.Success)
+                {
+                    liquidityInfo +=
+                        $"USD: _${uniResponse.TokenData.LiquidityUSD}_\n" +
+                        $"ETH: _{uniResponse.TokenData.LiquidityETH}_\n" +
+                        $"{gem.Symbol}: _{uniResponse.TokenData.LiquidityToken}_\n\n";
+                }
+                else
+                    liquidityInfo += $"`Data unavailable` \n\n";
             }
 
             string contractInfo = string.Empty;
 
-            if(etherScanResponse.Success)
+            if (gem.Recently == TokenAction.ADDED)
             {
-                contractInfo
-                    = gem.Recently == TokenAction.DELETED
-                    ? string.Empty
-                    : 
-                    (etherScanResponse.Contract.IsVerified
-                    ? $"✅ [Contract](https://etherscan.io/address/{gem.Id}) is verified \n\n"
-                    : $"❌ [Contract](https://etherscan.io/address/{gem.Id}) is NOT verified \n\n");
+                if (etherScanResponse.Success)
+                {
+                    contractInfo = etherScanResponse.Contract.IsVerified
+                        ? $"✅ [Contract](https://etherscan.io/address/{gem.Id}) is verified \n\n"
+                        : $"❌ [Contract](https://etherscan.io/address/{gem.Id}) is NOT verified \n\n";
+                }
+                else
+                    contractInfo += $"`Data unavailable` \n\n";
             }
 
             var formPair = string.Empty;
 
-            if(pairResponse.Success)
+            if (gem.Recently == TokenAction.ADDED)
             {
                 formPair = $"🥉 *Pairs*\n";
-                foreach (var item in pairResponse.Pairs)
+
+                if (pairResponse.Success)
                 {
-                    formPair +=
-                        $"`{item.Token0.Symbol}/{item.Token1.Symbol}`\n" +
-                        $"Total value: _${item.TotalLiquidityUSD} USD_\n" +
-                        $"Created at: _{item.CreatedAt:dd.MM.yyyy}_\n" +
-                        $"[Uniswap](https://info.uniswap.org/pair/{item.Id}) |" +
-                        $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
-                        $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
-                        $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
-                        $"\n\n";
+                    foreach (var item in pairResponse.Pairs)
+                    {
+                        formPair +=
+                            $"`{item.Token0.Symbol}/{item.Token1.Symbol}`\n" +
+                            $"Total value: _${item.TotalLiquidityUSD} USD_\n" +
+                            $"Created at: _{item.CreatedAt:dd.MM.yyyy}_\n" +
+                            $"[Uniswap](https://info.uniswap.org/pair/{item.Id}) |" +
+                            $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
+                            $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
+                            $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
+                            $"\n\n";
+                    }
                 }
+                else
+                    formPair += $"`Data unavailable` \n\n";
+            }
+
+            string topHoldersInfo = string.Empty;
+
+            if (gem.Recently == TokenAction.ADDED)
+            {
+                if (ethPlorerTokenInfoResponse.Success)
+                {
+                    topHoldersInfo += $"🌐 *Current hodlers*: {ethPlorerTokenInfoResponse.TokenInfo.HoldersCount}.\n";
+                }
+                else
+                {
+                    topHoldersInfo += $"🌐 *Current hodlers*\n";
+                }
+
+                if (ethPlorerTopHoldersResponse.Success)
+                {
+                    topHoldersInfo += $"Top 5 below:\n";
+
+                    var counter = 1;
+
+                    foreach (var item in ethPlorerTopHoldersResponse.HolderList.Holders)
+                    {
+                        topHoldersInfo += $"[Hodler - {counter++}](https://etherscan.io/token/{gem.Id}?a={item.Address}) - `{item.Share}%` \n";
+                    }
+
+                    topHoldersInfo += $"\n\n";
+                }
+                else
+                    topHoldersInfo += $"`Data unavailable` \n\n";
             }
 
             var banner =
-                Content(gem) + 
+                Content(gem) +
                 tokenInfo +
+                tokenInfoDetails +
+                liquidityInfo +
                 contractInfo +
-                (gem.Recently == TokenAction.DELETED
-                ? string.Empty
-                :
-                formPair) +
+                formPair +
                 topHoldersInfo;
 
             var buttons = new InlineKeyboardMarkup(new[]
