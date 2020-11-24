@@ -5,7 +5,6 @@ using GemTracker.Shared.Services;
 using GemTracker.Shared.Services.Responses;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Domain

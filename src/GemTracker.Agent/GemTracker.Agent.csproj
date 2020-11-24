@@ -21,6 +21,9 @@
     <None Update="appsettings.gem-runtime.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="j-fetch-data-from-kyber.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="j-fetch-data-from-uniswap.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

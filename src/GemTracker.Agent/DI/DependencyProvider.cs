@@ -28,12 +28,14 @@ namespace GemTracker.Agent.DI
 
             #region Jobs
             services.AddTransient<FetchDataFromUniswapJob>();
+            services.AddTransient<FetchDataFromKyberJob>();
             services.AddTransient<SendSummaryJob>();
             #endregion
 
             #region Services
             services.AddTransient<IConfigurationService, ConfigurationService>();
             services.AddTransient<IUniswapService, UniswapService>();
+            services.AddTransient<IKyberService, KyberService>();
             services.AddTransient<IFileService, FileService>();
 
             services.AddTransient<ITelegramService>(

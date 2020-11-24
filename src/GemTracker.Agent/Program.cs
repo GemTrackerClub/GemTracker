@@ -61,7 +61,7 @@ namespace GemTracker.Agent
 
                 await _scheduler.Start();
 
-                #region Fetch Data
+                #region Fetch Data Uniswap
                 var fdfu = app.Jobs.FirstOrDefault(j => j.Name == "j-fetch-data-from-uniswap");
 
                 var fdfuJob = JobBuilder.Create<FetchDataFromUniswapJob>()
@@ -80,6 +80,27 @@ namespace GemTracker.Agent
                         .RepeatForever());
 
                 var fdfuTrigger = fdfuBuilder.Build();
+                #endregion
+
+                #region Fetch Data Kyber
+                var fdfk = app.Jobs.FirstOrDefault(j => j.Name == "j-fetch-data-from-kyber");
+
+                var fdfkJob = JobBuilder.Create<FetchDataFromKyberJob>()
+                    .WithIdentity($"{fdfk.Name}Job")
+                    .Build();
+
+                fdfkJob.JobDataMap["FileName"] = fdfk.Name;
+                fdfkJob.JobDataMap["StoragePath"] = app.StoragePath;
+
+                var fdfkBuilder = TriggerBuilder.Create()
+                    .WithIdentity($"{fdfk.Name}Trigger")
+                    .StartNow();
+
+                fdfkBuilder.WithSimpleSchedule(x => x
+                        .WithIntervalInMinutes(fdfk.IntervalInMinutes)
+                        .RepeatForever());
+
+                var fdfkTrigger = fdfkBuilder.Build();
                 #endregion
 
                 #region Send Summary
@@ -106,6 +127,9 @@ namespace GemTracker.Agent
 
                 if (fdfu.IsActive)
                     await _scheduler.ScheduleJob(fdfuJob, fdfuTrigger);
+
+                if (fdfk.IsActive)
+                    await _scheduler.ScheduleJob(fdfkJob, fdfkTrigger);
 
                 if (ss.IsActive)
                     await _scheduler.ScheduleJob(ssJob, ssTrigger);
