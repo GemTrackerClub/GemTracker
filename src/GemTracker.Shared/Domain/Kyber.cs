@@ -11,35 +11,35 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Domain
 {
-    public class Uni
+    public class Kyber
     {
-        private readonly IUniswapService _uniswapService;
+        private readonly IKyberService _kyberService;
         private readonly IFileService _fileService;
 
         public string StorageFilePath { get; private set; }
         public string StorageFilePathDeleted { get; private set; }
         public string StorageFilePathAdded { get; private set; }
-        public Uni(IUniswapService uniswapService,
+        public Kyber(IKyberService kyberService,
             IFileService fileService)
         {
-            _uniswapService = uniswapService;
+            _kyberService = kyberService;
             _fileService = fileService;
         }
         public void SetPaths(string storagePath)
         {
-            StorageFilePath = PathTo.All(DexType.UNISWAP, storagePath);
-            StorageFilePathDeleted = PathTo.Deleted(DexType.UNISWAP, storagePath);
-            StorageFilePathAdded = PathTo.Added(DexType.UNISWAP, storagePath);
+            StorageFilePath = PathTo.All(DexType.KYBER, storagePath);
+            StorageFilePathDeleted = PathTo.Deleted(DexType.KYBER, storagePath);
+            StorageFilePathAdded = PathTo.Added(DexType.KYBER, storagePath);
         }
-        public async Task<UniswapTokensResponse> FetchAllAsync()
+        public async Task<KyberTokensResponse> FetchAllAsync()
         {
-            var result = new UniswapTokensResponse();
+            var result = new KyberTokensResponse();
 
-            var response = await _uniswapService.FetchAllAsync();
+            var response = await _kyberService.FetchAllAsync();
 
             if (response.Success)
             {
-                result.Tokens = response.Tokens;
+                result.List = response.List;
             }
             else
             {
@@ -47,12 +47,12 @@ namespace GemTracker.Shared.Domain
             }
             return result;
         }
-        public async Task<Loaded<Token>> LoadAllAsync()
+        public async Task<Loaded<KyberToken>> LoadAllAsync()
         {
-            var result = new Loaded<Token>();
+            var result = new Loaded<KyberToken>();
             try
             {
-                result.OldList = await _fileService.GetAsync<IEnumerable<Token>>(StorageFilePath);
+                result.OldList = await _fileService.GetAsync<IEnumerable<KyberToken>>(StorageFilePath);
                 result.OldListDeleted = await _fileService.GetAsync<List<Gem>>(StorageFilePathDeleted);
                 result.OldListAdded = await _fileService.GetAsync<List<Gem>>(StorageFilePathAdded);
             }

@@ -17,7 +17,7 @@ namespace GemTracker.Shared.Services
         private readonly string _apiSecret;
         private readonly string _accessToken;
         private readonly string _accessSecret;
-        private bool _isActive
+        private bool IsActive
             => !string.IsNullOrWhiteSpace(_apiKey) && !string.IsNullOrWhiteSpace(_apiSecret)
             && !string.IsNullOrWhiteSpace(_accessToken) && !string.IsNullOrWhiteSpace(_accessSecret);
         public TwitterService(
@@ -36,7 +36,7 @@ namespace GemTracker.Shared.Services
             var response = new SocialResponse();
             try
             {
-                if (_isActive)
+                if (IsActive)
                 {
                     var userClient = new TwitterClient(_apiKey, _apiSecret, _accessToken, _accessSecret);
 

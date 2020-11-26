@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace GemTracker.Shared.Domain.Models
 {
-    public class Loaded
+    public class Loaded<T>
     {
-        public IEnumerable<Token> OldList { get; set; }
+        public IEnumerable<T> OldList { get; set; }
         public List<Gem> OldListDeleted { get; set; }
         public List<Gem> OldListAdded { get; set; }
         public string Message { get; set; }

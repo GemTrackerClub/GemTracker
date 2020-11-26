@@ -1,5 +1,6 @@
 ﻿using GemTracker.Shared.Domain;
 using GemTracker.Shared.Domain.DTOs;
+using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Domain.Statics;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
@@ -40,8 +41,8 @@ namespace GemTracker.Agent.Jobs
 
                 var cfg = await _configurationService.GetJobConfigAsync(jobConfigFileName);
 
-                var added = await _fileService.GetAsync<List<Gem>>(PathTo.Added(storagePath));
-                var deleted = await _fileService.GetAsync<List<Gem>>(PathTo.Deleted(storagePath));
+                var added = await _fileService.GetAsync<List<Gem>>(PathTo.Added(DexType.UNISWAP, storagePath));
+                var deleted = await _fileService.GetAsync<List<Gem>>(PathTo.Deleted(DexType.UNISWAP, storagePath));
 
                 if (added.AnyAndNotNull())
                 {
