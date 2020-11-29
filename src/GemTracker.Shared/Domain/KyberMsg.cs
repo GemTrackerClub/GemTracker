@@ -29,9 +29,13 @@ namespace GemTracker.Shared.Domain
                     var dec = Convert.ToInt32(ethPlorerTokenInfoResponse.TokenInfo.Decimals);
                     var val = BigInteger.Parse(ethPlorerTokenInfoResponse.TokenInfo.TotalSupply);
 
+                    var owner = string.IsNullOrWhiteSpace(ethPlorerTokenInfoResponse.TokenInfo.Owner)
+                        ? $"Owner: [0x](https://etherscan.io/)\n"
+                        : $"Owner: [{ethPlorerTokenInfoResponse.TokenInfo.Owner}](https://etherscan.io/address/{ethPlorerTokenInfoResponse.TokenInfo.Owner})\n";
+
                     tokenInfoDetails +=
                         $"Transfers: _{ethPlorerTokenInfoResponse.TokenInfo.TransfersCount}_\n" +
-                        $"Owner: [{ethPlorerTokenInfoResponse.TokenInfo.Owner}](https://etherscan.io/address/{gem.Id})\n" +
+                        owner +
                         $"Total supply: _{UnitConversion.Convert.FromWei(val, dec)}_ {gem.Symbol} \n\n";
                 }
                 else
