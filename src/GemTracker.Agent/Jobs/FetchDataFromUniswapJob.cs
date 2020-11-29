@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain;
+using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using NLog;
@@ -19,6 +20,7 @@ namespace GemTracker.Agent.Jobs
         private readonly ITelegramService _telegramService;
         private readonly IEtherScanService _etherScanService;
         private readonly IEthPlorerService _ethPlorerService;
+        private readonly string Dex = DexType.UNISWAP.GetDescription().ToUpperInvariant();
         public FetchDataFromUniswapJob(
             IConfigurationService configurationService,
             IUniswapService uniswapService,
@@ -50,15 +52,15 @@ namespace GemTracker.Agent.Jobs
 
                 if (latestAll.Success)
                 {
-                    Logger.Info($"V2|GRAPH|LATEST|{latestAll.Tokens.Count()}");
+                    Logger.Info($"{Dex}|LATEST|{latestAll.Tokens.Count()}");
 
                     var loadedAll = await uniswap.LoadAllAsync();
 
                     if (loadedAll.Success)
                     {
-                        Logger.Info($"V2|GRAPH|LOADED ALL|{loadedAll.OldList.Count()}");
-                        Logger.Info($"V2|GRAPH|LOADED ALL DELETED|{loadedAll.OldListDeleted.Count()}");
-                        Logger.Info($"V2|GRAPH|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
+                        Logger.Info($"{Dex}|LOADED ALL|{loadedAll.OldList.Count()}");
+                        Logger.Info($"{Dex}|LOADED ALL DELETED|{loadedAll.OldListDeleted.Count()}");
+                        Logger.Info($"{Dex}|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
 
                         var recentlyDeletedAll = uniswap.CheckDeleted(loadedAll.OldList, latestAll.Tokens);
                         var recentlyAddedAll = uniswap.CheckAdded(loadedAll.OldList, latestAll.Tokens);
@@ -73,9 +75,9 @@ namespace GemTracker.Agent.Jobs
 
                         if (cfg.JobConfig.Notify)
                         {
-                            Logger.Info($"V2|GRAPH|TELEGRAM|ON");
+                            Logger.Info($"{Dex}|TELEGRAM|ON");
 
-                            var telegramNotification = new Ntf(
+                            var telegramNotification = new UniNtf(
                                 _telegramService,
                                 _uniswapService,
                                 _etherScanService,
@@ -84,25 +86,25 @@ namespace GemTracker.Agent.Jobs
                             var notifiedAboutDeleted = await telegramNotification.SendAsync(recentlyDeletedAll);
 
                             if (notifiedAboutDeleted.Success)
-                                Logger.Info($"V2|GRAPH|TELEGRAM|DELETED|SENT");
+                                Logger.Info($"{Dex}|TELEGRAM|DELETED|SENT");
                             else
-                                Logger.Warn($"V2|GRAPH|TELEGRAM|DELETED|{notifiedAboutDeleted.Message}");
+                                Logger.Warn($"{Dex}|TELEGRAM|DELETED|{notifiedAboutDeleted.Message}");
 
                             var notifiedAboutAdded = await telegramNotification.SendAsync(recentlyAddedAll);
 
                             if (notifiedAboutAdded.Success)
-                                Logger.Info($"V2|GRAPH|TELEGRAM|ADDED|SENT");
+                                Logger.Info($"{Dex}|TELEGRAM|ADDED|SENT");
                             else
-                                Logger.Warn($"V2|GRAPH|TELEGRAM|ADDED|{notifiedAboutAdded.Message}");
+                                Logger.Warn($"{Dex}|TELEGRAM|ADDED|{notifiedAboutAdded.Message}");
                         }
                         else
-                            Logger.Info($"V2|GRAPH|TELEGRAM|OFF");
+                            Logger.Info($"{Dex}|TELEGRAM|OFF");
                     }
                     else
-                        Logger.Error($"V2|GRAPH|{loadedAll.Message}");
+                        Logger.Error($"{Dex}|{loadedAll.Message}");
                 }
                 else
-                    Logger.Error($"V2|GRAPH|{latestAll.Message}");
+                    Logger.Error($"{Dex}|{latestAll.Message}");
 
                 if (cfg.Success)
                     Logger.Info($"Job: {cfg.JobConfig.Label} - DONE");

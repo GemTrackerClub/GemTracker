@@ -7,6 +7,7 @@ using GemTracker.Shared.Services;
 using GemTracker.Shared.Services.Responses;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Domain
@@ -62,10 +63,60 @@ namespace GemTracker.Shared.Domain
             }
             return result;
         }
-        public IEnumerable<Gem> CheckDeleted(IEnumerable<Token> oldList, IEnumerable<Token> newList)
-            => DexTokenCompare.DeletedTokens(oldList, newList);
+        public IEnumerable<Gem> CheckDeleted(IEnumerable<Token> oldList, IEnumerable<Token> newList, TokenActionType tokenActionType)
+        {
+            var recentlyDeleted = new List<Gem>();
 
-        public IEnumerable<Gem> CheckAdded(IEnumerable<Token> oldList, IEnumerable<Token> newList)
-            => DexTokenCompare.AddedTokens(oldList, newList);
+            var deletedFromDex = oldList
+                    .Where(p => newList
+                    .All(p2 => p2.Id != p.Id))
+                    .ToList();
+
+            if (deletedFromDex.Count() > 0)
+            {
+                foreach (var item in deletedFromDex)
+                {
+                    var gem = new Gem
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Symbol = item.Symbol,
+                        Recently = tokenActionType,
+                        Date = DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
+                        IsPublished = false
+                    };
+                    recentlyDeleted.Add(gem);
+                }
+            }
+            return recentlyDeleted;
+        }
+
+        public IEnumerable<Gem> CheckAdded(IEnumerable<Token> oldList, IEnumerable<Token> newList, TokenActionType tokenActionType)
+        {
+            var recentlyAdded = new List<Gem>();
+
+            var addedToDex = newList
+                    .Where(p => oldList
+                    .All(p2 => p2.Id != p.Id))
+                    .ToList();
+
+            if (addedToDex.Count() > 0)
+            {
+                foreach (var item in addedToDex)
+                {
+                    var gem = new Gem
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Symbol = item.Symbol,
+                        Recently = tokenActionType,
+                        Date = DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
+                        IsPublished = false
+                    };
+                    recentlyAdded.Add(gem);
+                }
+            }
+            return recentlyAdded;
+        }
     }
 }

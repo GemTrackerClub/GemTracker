@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GemTracker.Shared.Domain.Enums;
+using System;
 using System.Globalization;
 using System.Text.Json.Serialization;
 
@@ -7,7 +8,7 @@ namespace GemTracker.Shared.Domain.DTOs
     public class Gem : Token
     {
         [JsonPropertyName("recently")]
-        public TokenAction Recently { get; set; }
+        public TokenActionType Recently { get; set; }
         [JsonPropertyName("date")]
         public string Date { get; set; }
         [JsonPropertyName("ispublished")]

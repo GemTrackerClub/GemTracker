@@ -51,7 +51,7 @@ namespace GemTracker.Agent.Jobs
                     var newestAdded = added
                         .Where(
                             g =>
-                            g.Recently == TokenAction.ADDED &&
+                            g.Recently == TokenActionType.ADDED &&
                             (DateTime.UtcNow - g.DateTime).TotalMinutes < interval)
                         .OrderByDescending(g => g.DateTime)
                         .ToList();
@@ -60,7 +60,7 @@ namespace GemTracker.Agent.Jobs
 
                     if (newestAdded.AnyAndNotNull())
                     {
-                        var msg = Msg.ForTwitterSummary(newestAdded, TokenAction.ADDED, interval.Value);
+                        var msg = UniMsg.ForTwitterSummary(newestAdded, TokenActionType.ADDED, interval.Value);
 
                         var sent = await _twitterService.SendMessageAsync(msg);
 
@@ -80,7 +80,7 @@ namespace GemTracker.Agent.Jobs
                     var newestDeleted = deleted
                         .Where(
                             g =>
-                            g.Recently == TokenAction.DELETED &&
+                            g.Recently == TokenActionType.DELETED &&
                             (DateTime.Now - g.DateTime).TotalMinutes < interval)
                         .OrderByDescending(g => g.DateTime)
                         .ToList();
@@ -89,7 +89,7 @@ namespace GemTracker.Agent.Jobs
 
                     if (newestDeleted.AnyAndNotNull())
                     {
-                        var msg = Msg.ForTwitterSummary(newestDeleted, TokenAction.DELETED, interval.Value);
+                        var msg = UniMsg.ForTwitterSummary(newestDeleted, TokenActionType.DELETED, interval.Value);
 
                         var sent = await _twitterService.SendMessageAsync(msg);
 

@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain.DTOs;
+using GemTracker.Shared.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace GemTracker.Shared.Domain.Statics
                         Id = item.Id,
                         Name = item.Name,
                         Symbol = item.Symbol,
-                        Recently = TokenAction.DELETED,
+                        Recently = TokenActionType.DELETED,
                         Date = DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
                         IsPublished = false
                     };
@@ -53,7 +54,7 @@ namespace GemTracker.Shared.Domain.Statics
                         Id = item.Id,
                         Name = item.Name,
                         Symbol = item.Symbol,
-                        Recently = TokenAction.ADDED,
+                        Recently = TokenActionType.ADDED,
                         Date = DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
                         IsPublished = false
                     };

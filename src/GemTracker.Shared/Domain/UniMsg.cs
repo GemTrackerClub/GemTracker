@@ -1,5 +1,6 @@
 ﻿using GemTracker.Shared.Converters;
 using GemTracker.Shared.Domain.DTOs;
+using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services.Responses;
 using System;
@@ -10,51 +11,21 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace GemTracker.Shared.Domain
 {
-    public class Msg
+    public class UniMsg
     {
-        public static string ForTwitterSummary(IEnumerable<Gem> gems, TokenAction tokenAction, int interval)
-        {
-            var emoji = tokenAction == TokenAction.ADDED
-                ? "✅"
-                : "❌";
-
-            var result =
-                $"🦄 Uniswap (for last {interval / 60} h) \n\n" +
-                $" {emoji} {tokenAction.GetDescription()} \n\n" +
+        public static string ForTwitterSummary(IEnumerable<Gem> gems, TokenActionType tokenAction, int interval)
+            => $"🦄 Uniswap (for last {interval / 60} h) \n\n" +
+                $" {SharedMessageContent.RecentlyEmoji(tokenAction)} {tokenAction.GetDescription()} \n\n" +
                 $"💎 {gems.Count()} Tokens\n" +
                 $"🚨 Some of them: {string.Join(" ", gems.Take(5).Select(g => $"${g.Symbol}"))}\n\n" +
                 $"Join for free: https://t.me/GemTrackerClub \n" +
                 $"💰 Ask for premium: https://gemtracker.club/#premium \n" +
                 $"( $BTC $ETH $ALTS $UNI #uniswap #cryptocurrency #gem #gemtrackerclub )";
 
-            return result;
-        }
-        public static string ForTwitter(Gem gem)
-        {
-            var emoji = gem.Recently == TokenAction.ADDED
-                ? "✅"
-                : "❌";
-
-            var result =
-                $"{emoji} {gem.Recently.GetDescription()} - Uniswap\n\n" +
-                $"💎 Token: {gem.Name}\n" +
-                $"🚨 Symbol: ${gem.Symbol}\n" +
-                $"🦄 Uniswap: https://uniswap.info/token/{gem.Id} \n" +
-                $"🔎 EthScan: https://etherscan.io/token/{gem.Id} \n" +
-                $"Join for free: https://t.me/GemTrackerClub \n" +
-                $"💰 Ask for premium: https://gemtracker.club/#premium \n" +
-                $"( $BTC $ETH $ALTS $UNI #uniswap #cryptocurrency #gem)\n";
-
-            return result;
-        }
-        private static string RecentlyEmoji(Gem gem)
-            => gem.Recently == TokenAction.ADDED
-                ? "✅"
-                : "❌";
         private static InlineKeyboardButton[] UniswapButtons(Gem gem)
         {
             var buyOrNot
-                = gem.Recently == TokenAction.ADDED
+                = gem.Recently == TokenActionType.ADDED
                 ? InlineKeyboardButton.WithUrl("📉 Buy", $"https://app.uniswap.org/#/swap?outputCurrency={gem.Id}")
                 : InlineKeyboardButton.WithUrl("🛑 DON'T Buy it", $"https://uniswap.info/");
 
@@ -65,36 +36,15 @@ namespace GemTracker.Shared.Domain
                     InlineKeyboardButton.WithUrl("📈 Sell", $"https://app.uniswap.org/#/swap?inputCurrency={gem.Id}"),
                 };
         }
-        private static InlineKeyboardButton[] EtherscanButtons(Gem gem)
-            => new[]
-                {
-                    InlineKeyboardButton.WithUrl("🔎 EthScan", $"https://etherscan.io/token/{gem.Id}"),
-                    InlineKeyboardButton.WithUrl("📋 Contract", $"https://etherscan.io/address/{gem.Id}"),
-                    InlineKeyboardButton.WithUrl("🤑 Hodlers", $"https://etherscan.io/token/{gem.Id}#balances"),
-                };
+
         private static string Content(Gem gem)
         {
-            var networkEffectVisible
-                = gem.Recently == TokenAction.ADDED
-                ?
-                $"📣 *Network effect:*\n" +
-                $"Twitter: [${gem.Symbol}](https://twitter.com/search?q=%24{gem.Symbol}) | [{gem.Name}](https://twitter.com/search?q={gem.Name})\n" +
-                $"Reddit:  [${gem.Symbol}](https://www.reddit.com/search/?q=%24{gem.Symbol}) | [{gem.Name}](https://www.reddit.com/search/?q={gem.Name})\n" +
-                $"4chan:   [${gem.Symbol}](https://boards.4channel.org/biz/catalog#s=%24{gem.Symbol}) | [{gem.Name}](https://boards.4channel.org/biz/catalog#s={gem.Name})\n\n"
-                :
-                string.Empty;
+            var networkEffectVisible = SharedMessageContent.NetworkEffectContent(gem.Recently, gem.Symbol, gem.Name);
 
-            var statisticsVisible
-                = gem.Recently == TokenAction.ADDED
-                ?
-                $"🧮 *Statistics*\n" +
-                $"EthPlorer [{gem.Id}](https://ethplorer.io/address/{gem.Id})\n" +
-                $"blockchair [{gem.Id}](https://blockchair.com/ethereum/erc-20/token/{gem.Id}?from=gemtracker)\n\n"
-                :
-                string.Empty;
+            var statisticsVisible = SharedMessageContent.StatisticsContent(gem.Recently, gem.Id);
 
             var chartsVisible
-                = gem.Recently == TokenAction.ADDED
+                = gem.Recently == TokenActionType.ADDED
                 ?
                 $"📊 *Charts*\n" +
                 $"ChartEx [${gem.Symbol}](https://chartex.pro/?symbol=UNISWAP:{gem.Symbol}) |" +
@@ -102,18 +52,11 @@ namespace GemTracker.Shared.Domain
                 :
                 string.Empty;
 
-            var warningAfterDelete
-                = gem.Recently == TokenAction.DELETED
-                ?
-                $"🛑 *WARNING*\n" +
-                $"Address: [{gem.Id}](https://etherscan.io/token/{gem.Id}) \n\n" +
-                $"Make sure to delete the allowance using fe. [revoke.cash](https://revoke.cash)\n\n"
-                :
-                string.Empty;
+            var warningAfterDelete = SharedMessageContent.WarningContent(gem.Recently, gem.Id);
 
             var result =
-                $"{RecentlyEmoji(gem)} *{gem.Recently.GetDescription()}* - Uniswap (v2)\n\n" +
-                $"🦄 Uniswap\n" +
+                $"{DexType.UNISWAP.GetDescription().ToUpperInvariant()}\n" +
+                $"{SharedMessageContent.RecentlyEmoji(gem.Recently)} *{gem.Recently.GetDescription()}*\n\n" +
                 $"💎 Token: *{gem.Name}*\n" +
                 $"🚨 Symbol: *{gem.Symbol}*\n\n" +
                 networkEffectVisible +
@@ -134,7 +77,7 @@ namespace GemTracker.Shared.Domain
         {
             string tokenInfo = string.Empty;
 
-            if (gem.Recently == TokenAction.ADDED)
+            if (gem.Recently == TokenActionType.ADDED)
             {
                 tokenInfo = $"🥇 *Token - ${gem.Symbol}*\n";
 
@@ -150,7 +93,7 @@ namespace GemTracker.Shared.Domain
 
             string tokenInfoDetails = string.Empty;
 
-            if (gem.Recently == TokenAction.ADDED)
+            if (gem.Recently == TokenActionType.ADDED)
             {
                 tokenInfoDetails += $"🥇 *Token Details*\n";
 
@@ -170,7 +113,7 @@ namespace GemTracker.Shared.Domain
 
             string liquidityInfo = string.Empty;
 
-            if (gem.Recently == TokenAction.ADDED)
+            if (gem.Recently == TokenActionType.ADDED)
             {
                 liquidityInfo = $"🥈 *Liquidity*\n";
 
@@ -187,13 +130,13 @@ namespace GemTracker.Shared.Domain
 
             string contractInfo = string.Empty;
 
-            if (gem.Recently == TokenAction.ADDED)
+            if (gem.Recently == TokenActionType.ADDED)
             {
                 if (etherScanResponse.Success)
                 {
                     contractInfo = etherScanResponse.Contract.IsVerified
-                        ? $"✅ [Contract](https://etherscan.io/address/{gem.Id}) is verified \n\n"
-                        : $"❌ [Contract](https://etherscan.io/address/{gem.Id}) is NOT verified \n\n";
+                        ? $"✅ [Contract](https://etherscan.io/address/{gem.Id}#code) is verified \n\n"
+                        : $"❌ [Contract](https://etherscan.io/address/{gem.Id}#code) is NOT verified \n\n";
                 }
                 else
                     contractInfo += $"`Data unavailable` \n\n";
@@ -201,7 +144,7 @@ namespace GemTracker.Shared.Domain
 
             var formPair = string.Empty;
 
-            if (gem.Recently == TokenAction.ADDED)
+            if (gem.Recently == TokenActionType.ADDED)
             {
                 formPair = $"🥉 *Pairs*\n";
 
@@ -226,7 +169,7 @@ namespace GemTracker.Shared.Domain
 
             string topHoldersInfo = string.Empty;
 
-            if (gem.Recently == TokenAction.ADDED)
+            if (gem.Recently == TokenActionType.ADDED)
             {
                 if (ethPlorerTokenInfoResponse.Success)
                 {
@@ -266,10 +209,10 @@ namespace GemTracker.Shared.Domain
             var buttons = new InlineKeyboardMarkup(new[]
             {
                 UniswapButtons(gem),
-                EtherscanButtons(gem),
+                SharedMessageContent.EtherscanButtons(gem.Id),
                 new []
                 {
-                    InlineKeyboardButton.WithUrl("📧 Support", $"https://t.me/tkowalczyk")
+                    InlineKeyboardButton.WithUrl("📧 Support", $"https://t.me/GemTrackerCommunity")
                 }
             });
 
@@ -290,7 +233,7 @@ namespace GemTracker.Shared.Domain
             var buttons = new InlineKeyboardMarkup(new[]
             {
                 UniswapButtons(gem),
-                EtherscanButtons(gem),
+                SharedMessageContent.EtherscanButtons(gem.Id),
                 new []
                 {
                     InlineKeyboardButton.WithUrl("⚙️ How to use?", $"https://gemtracker.club/#howtouse"),

@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Domain
 {
-    public class Ntf
+    public class UniNtf
     {
         private readonly ITelegramService _telegramService;
         private readonly IUniswapService _uniswapService;
         private readonly IEtherScanService _etherScanService;
         private readonly IEthPlorerService _ethPlorerService;
-        public Ntf(
+        public UniNtf(
             ITelegramService telegramService,
             IUniswapService uniswapService,
             IEtherScanService etherScanService,
@@ -50,7 +50,7 @@ namespace GemTracker.Shared.Domain
                             () => { return holdersTask = _ethPlorerService.FetchTopHoldersAsync(gem.Id, 5); }
                         );
 
-                        var msgPr = Msg.ForPremiumTelegram(
+                        var msgPr = UniMsg.ForPremiumTelegram(
                             gem,
                             uniTokenTask.Result,
                             tokenInfoTask.Result,
@@ -65,7 +65,7 @@ namespace GemTracker.Shared.Domain
                             result.Message += $"Telegram Premium Error: {sentPr.Message}";
                         }
 
-                        var msgTg = Msg.ForFreeTelegram(gem);
+                        var msgTg = UniMsg.ForFreeTelegram(gem);
 
                         var sentTg = await _telegramService.SendFreeMessageAsync(msgTg.Item2, msgTg.Item1);
 

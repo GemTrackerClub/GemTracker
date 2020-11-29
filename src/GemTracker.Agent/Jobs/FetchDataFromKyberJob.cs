@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain;
+using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using NLog;
@@ -19,6 +20,7 @@ namespace GemTracker.Agent.Jobs
         private readonly ITelegramService _telegramService;
         private readonly IEtherScanService _etherScanService;
         private readonly IEthPlorerService _ethPlorerService;
+        private readonly string Dex = DexType.KYBER.GetDescription().ToUpperInvariant();
         public FetchDataFromKyberJob(
             IConfigurationService configurationService,
             IKyberService kyberService,
@@ -50,15 +52,15 @@ namespace GemTracker.Agent.Jobs
 
                 if (latestAll.Success)
                 {
-                    Logger.Info($"V2|KYBER|LATEST|{latestAll.List.Data.Count()}");
+                    Logger.Info($"{Dex}|LATEST|{latestAll.List.Data.Count()}");
 
                     var loadedAll = await kyber.LoadAllAsync();
 
                     if (loadedAll.Success)
                     {
-                        Logger.Info($"V2|KYBER|LOADED ALL|{loadedAll.OldList.Count()}");
-                        Logger.Info($"V2|KYBER|LOADED ALL DELETED|{loadedAll.OldListDeleted.Count()}");
-                        Logger.Info($"V2|KYBER|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
+                        Logger.Info($"{Dex}|LOADED ALL|{loadedAll.OldList.Count()}");
+                        Logger.Info($"{Dex}|LOADED ALL DELETED|{loadedAll.OldListDeleted.Count()}");
+                        Logger.Info($"{Dex}|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
 
                         var latestNotActive = latestAll.List.Data.Where(t => !t.Active).ToList();
                         var latestActive = latestAll.List.Data.Where(t => t.Active).ToList();
@@ -66,11 +68,11 @@ namespace GemTracker.Agent.Jobs
                         var loadedNotActive = loadedAll.OldListDeleted.ToList();
                         var loadedActive = loadedAll.OldListAdded.ToList();
 
-                        var recentlyAddedToActive = kyber.CheckAdded(loadedActive, latestActive);
-                        var recentlyDeletedFromActive = kyber.CheckDeleted(loadedActive, latestActive);
+                        var recentlyAddedToActive = kyber.CheckAdded(loadedActive, latestActive, TokenActionType.KYBER_ADDED_TO_ACTIVE);
+                        var recentlyDeletedFromActive = kyber.CheckDeleted(loadedActive, latestActive, TokenActionType.KYBER_DELETED_FROM_ACTIVE);
 
-                        var recentlyAddedToNotActive = kyber.CheckAdded(loadedNotActive, latestNotActive);
-                        var recentlyDeletedFromNotActive = kyber.CheckDeleted(loadedNotActive, latestNotActive);
+                        var recentlyAddedToNotActive = kyber.CheckAdded(loadedNotActive, latestNotActive, TokenActionType.KYBER_ADDED_TO_NOT_ACTIVE);
+                        var recentlyDeletedFromNotActive = kyber.CheckDeleted(loadedNotActive, latestNotActive, TokenActionType.KYBER_DELETED_FROM_NOT_ACTIVE);
 
                         loadedAll.OldListDeleted.AddRange(recentlyAddedToNotActive);
                         foreach (var item in recentlyDeletedFromNotActive)
@@ -98,14 +100,47 @@ namespace GemTracker.Agent.Jobs
 
                         if (cfg.JobConfig.Notify)
                         {
-                            Logger.Info($"V2|KYBER|TELEGRAM|ON");
+                            Logger.Info($"{Dex}|TELEGRAM|ON");
+
+                            var telegramNotification = new KyberNtf(
+                                _telegramService,
+                                _etherScanService,
+                                _ethPlorerService);
+
+                            var notifiedAddedToActive = await telegramNotification.SendAsync(recentlyAddedToActive);
+
+                            if (notifiedAddedToActive.Success)
+                                Logger.Info($"{Dex}|TELEGRAM|ADDED TO ACTIVE|SENT");
+                            else
+                                Logger.Warn($"{Dex}|TELEGRAM|ADDED TO ACTIVE|{notifiedAddedToActive.Message}");
+
+                            var notifiedDeletedFromActive = await telegramNotification.SendAsync(recentlyDeletedFromActive);
+
+                            if (notifiedDeletedFromActive.Success)
+                                Logger.Info($"{Dex}|TELEGRAM|DELETED FROM ACTIVE|SENT");
+                            else
+                                Logger.Warn($"{Dex}|TELEGRAM|DELETED FROM ACTIVE|{notifiedDeletedFromActive.Message}");
+
+                            var notifiedAddedToNotActive = await telegramNotification.SendAsync(recentlyAddedToNotActive);
+
+                            if (notifiedAddedToNotActive.Success)
+                                Logger.Info($"{Dex}|TELEGRAM|ADDED TO NOT ACTIVE|SENT");
+                            else
+                                Logger.Warn($"{Dex}|TELEGRAM|ADDED TO NOT ACTIVE|{notifiedAddedToNotActive.Message}");
+
+                            var notifiedDeletedFromNotActive = await telegramNotification.SendAsync(recentlyDeletedFromNotActive);
+
+                            if (notifiedDeletedFromNotActive.Success)
+                                Logger.Info($"{Dex}|TELEGRAM|DELETED FROM NOT ACTIVE|SENT");
+                            else
+                                Logger.Warn($"{Dex}|TELEGRAM|DELETED FROM NOT ACTIVE|{notifiedDeletedFromNotActive.Message}");
                         }
                     }
                     else
-                        Logger.Error($"V2|KYBER|{loadedAll.Message}");
+                        Logger.Error($"{Dex}|{loadedAll.Message}");
                 }
                 else
-                    Logger.Error($"V2|KYBER|{latestAll.Message}");
+                    Logger.Error($"{Dex}|{latestAll.Message}");
 
                 if (cfg.Success)
                     Logger.Info($"Job: {cfg.JobConfig.Label} - DONE");
