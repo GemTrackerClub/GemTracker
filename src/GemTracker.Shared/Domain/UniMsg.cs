@@ -163,6 +163,7 @@ namespace GemTracker.Shared.Domain
                             $"[Uniswap](https://info.uniswap.org/pair/{item.Id}) |" +
                             $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
                             $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
+                            $" [MoonTools](https://app.moontools.io/pairs/{item.Id}) |" +
                             $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
                             $"\n\n";
                     }
