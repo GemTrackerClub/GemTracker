@@ -52,7 +52,7 @@ namespace GemTracker.Agent.Jobs
 
                 if (latestAll.Success)
                 {
-                    Logger.Info($"{Dex}|LATEST|{latestAll.List.Data.Count()}");
+                    Logger.Info($"{Dex}|LATEST|{latestAll.ObjectResponse.Data.Count()}");
 
                     var loadedAll = await kyber.LoadAllAsync();
 
@@ -62,8 +62,8 @@ namespace GemTracker.Agent.Jobs
                         Logger.Info($"{Dex}|LOADED ALL DELETED|{loadedAll.OldListDeleted.Count()}");
                         Logger.Info($"{Dex}|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
 
-                        var latestNotActive = latestAll.List.Data.Where(t => !t.Active).ToList();
-                        var latestActive = latestAll.List.Data.Where(t => t.Active).ToList();
+                        var latestNotActive = latestAll.ObjectResponse.Data.Where(t => !t.Active).ToList();
+                        var latestActive = latestAll.ObjectResponse.Data.Where(t => t.Active).ToList();
 
                         var loadedNotActive = loadedAll.OldListDeleted.ToList();
                         var loadedActive = loadedAll.OldListAdded.ToList();
@@ -96,7 +96,7 @@ namespace GemTracker.Agent.Jobs
                         await _fileService.SetAsync(kyber.StorageFilePathDeleted, loadedAll.OldListDeleted);
                         await _fileService.SetAsync(kyber.StorageFilePathAdded, loadedAll.OldListAdded);
 
-                        await _fileService.SetAsync(kyber.StorageFilePath, latestAll.List.Data);
+                        await _fileService.SetAsync(kyber.StorageFilePath, latestAll.ObjectResponse.Data);
 
                         if (cfg.JobConfig.Notify)
                         {

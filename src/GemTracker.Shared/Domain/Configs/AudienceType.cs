@@ -8,6 +8,9 @@ namespace GemTracker.Shared.Domain.Configs
         FREE = 0,
 
         [Description("PREMIUM")]
-        PREMIUM = 1
+        PREMIUM = 1,
+
+        [Description("VERIFIED")]
+        VERIFIED = 2
     }
 }

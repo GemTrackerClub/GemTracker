@@ -4,7 +4,7 @@ using GemTracker.Shared.Domain.Models;
 using GemTracker.Shared.Domain.Statics;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,15 +32,15 @@ namespace GemTracker.Shared.Domain
             StorageFilePathDeleted = PathTo.Deleted(DexType.KYBER, storagePath);
             StorageFilePathAdded = PathTo.Added(DexType.KYBER, storagePath);
         }
-        public async Task<KyberTokensResponse> FetchAllAsync()
+        public async Task<SingleServiceResponse<KyberTokenList>> FetchAllAsync()
         {
-            var result = new KyberTokensResponse();
+            var result = new SingleServiceResponse<KyberTokenList>();
 
             var response = await _kyberService.FetchAllAsync();
 
             if (response.Success)
             {
-                result.List = response.List;
+                result.ObjectResponse = response.ObjectResponse;
             }
             else
             {

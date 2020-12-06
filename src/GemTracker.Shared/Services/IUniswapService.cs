@@ -1,6 +1,6 @@
 ﻿using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using GraphQL;
 using GraphQL.Client.Abstractions;
 using GraphQL.Client.Http;
@@ -15,9 +15,9 @@ namespace GemTracker.Shared.Services
 {
     public interface IUniswapService
     {
-        Task<UniswapTokensResponse> FetchAllAsync();
-        Task<UniswapTokenDataResponse> FetchTokenAsync(string tokenId);
-        Task<UniswapPairDataResponse> FetchPairsAsync(string tokenId);
+        Task<ListServiceResponse<Token>> FetchAllAsync();
+        Task<SingleServiceResponse<TokenData>> FetchTokenAsync(string tokenId);
+        Task<ListServiceResponse<PairData>> FetchPairsAsync(string tokenId);
     }
     public class UniswapService : IUniswapService
     {
@@ -28,9 +28,9 @@ namespace GemTracker.Shared.Services
                 "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2",
                 new NewtonsoftJsonSerializer());
         }
-        public async Task<UniswapTokensResponse> FetchAllAsync()
+        public async Task<ListServiceResponse<Token>> FetchAllAsync()
         {
-            var result = new UniswapTokensResponse();
+            var result = new ListServiceResponse<Token>();
             try
             {
                 GraphQLResponse<TokenList> graphQLResponse = null;
@@ -79,9 +79,9 @@ namespace GemTracker.Shared.Services
                         }
                     }
 
-                    if(!(graphQLResponse.Errors is null))
+                    if (!(graphQLResponse.Errors is null))
                     {
-                        result.Tokens = null;
+                        result.ListResponse = null;
                         result.Message = graphQLResponse.Errors?.FirstOrDefault().Message;
                         break;
                     }
@@ -90,7 +90,7 @@ namespace GemTracker.Shared.Services
 
                 } while (!(graphQLResponse.Data is null) && (graphQLResponse.Errors is null) && graphQLResponse.Data.Tokens.AnyAndNotNull());
 
-                result.Tokens = list;
+                result.ListResponse = list;
             }
             catch (Exception ex)
             {
@@ -99,9 +99,9 @@ namespace GemTracker.Shared.Services
             return result;
         }
 
-        public async Task<UniswapPairDataResponse> FetchPairsAsync(string tokenId)
+        public async Task<ListServiceResponse<PairData>> FetchPairsAsync(string tokenId)
         {
-            var result = new UniswapPairDataResponse();
+            var result = new ListServiceResponse<PairData>();
             try
             {
                 var pairDataRequest = new GraphQLRequest
@@ -152,7 +152,7 @@ namespace GemTracker.Shared.Services
                         pairData.AddRange(pairDataResponse.Data.Pairs);
                     }
                 }
-                result.Pairs = pairData;
+                result.ListResponse = pairData;
             }
             catch (Exception ex)
             {
@@ -161,9 +161,9 @@ namespace GemTracker.Shared.Services
             return result;
         }
 
-        public async Task<UniswapTokenDataResponse> FetchTokenAsync(string tokenId)
+        public async Task<SingleServiceResponse<TokenData>> FetchTokenAsync(string tokenId)
         {
-            var result = new UniswapTokenDataResponse();
+            var result = new SingleServiceResponse<TokenData>();
             try
             {
                 var tokenDataRequest = new GraphQLRequest
@@ -210,7 +210,7 @@ namespace GemTracker.Shared.Services
                     }
                 }
 
-                result.TokenData = tokenDayData;
+                result.ObjectResponse = tokenDayData;
             }
             catch (Exception ex)
             {

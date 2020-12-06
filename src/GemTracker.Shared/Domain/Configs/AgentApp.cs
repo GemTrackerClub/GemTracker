@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using GemTracker.Shared.Domain.Configs.Jobs;
+using GemTracker.Shared.Domain.Configs.Services;
+using System.Collections.Generic;
 
 namespace GemTracker.Shared.Domain.Configs
 {

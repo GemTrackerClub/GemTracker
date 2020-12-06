@@ -1,6 +1,6 @@
 ﻿using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace GemTracker.Shared.Services
 {
     public interface IEtherScanService
     {
-        Task<EtherScanResponse> IsSmartContractVerifiedAsync(string contractAddress);
+        Task<SingleServiceResponse<SmartContract>> IsSmartContractVerifiedAsync(string contractAddress);
     }
 
     public class EtherScanService : IEtherScanService
@@ -24,9 +24,9 @@ namespace GemTracker.Shared.Services
         {
             _apiKey = apiKey;
         }
-        public async Task<EtherScanResponse> IsSmartContractVerifiedAsync(string contractAddress)
+        public async Task<SingleServiceResponse<SmartContract>> IsSmartContractVerifiedAsync(string contractAddress)
         {
-            var result = new EtherScanResponse();
+            var result = new SingleServiceResponse<SmartContract>();
             var parameters = new Dictionary<string, object>()
             {
                 {"module", "contract" },
@@ -39,7 +39,7 @@ namespace GemTracker.Shared.Services
                 using var client = new WebClient();
                 string httpApiResult = await client.DownloadStringTaskAsync(ConstructRequest(parameters));
 
-                result.Contract = JsonSerializer.Deserialize<SmartContract>(httpApiResult);
+                result.ObjectResponse = JsonSerializer.Deserialize<SmartContract>(httpApiResult);
             }
             catch (Exception ex)
             {

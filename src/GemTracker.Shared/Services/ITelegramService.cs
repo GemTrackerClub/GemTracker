@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain.Configs;
+using GemTracker.Shared.Domain.Configs.Services;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services.Responses;
 using System;

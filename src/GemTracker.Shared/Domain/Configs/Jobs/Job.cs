@@ -1,4 +1,4 @@
-﻿namespace GemTracker.Shared.Domain.Configs
+﻿namespace GemTracker.Shared.Domain.Configs.Jobs
 {
     public class Job
     {

@@ -1,6 +1,6 @@
-﻿namespace GemTracker.Shared.Domain.Configs
+﻿namespace GemTracker.Shared.Domain.Configs.Jobs
 {
-    public class JobConfigFile
+    public class JobFile
     {
         public string Label { get; set; }
         public bool Notify { get; set; }

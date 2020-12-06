@@ -1,4 +1,4 @@
-﻿using GemTracker.Shared.Domain.Configs;
+﻿using GemTracker.Shared.Domain.Configs.Jobs;
 using GemTracker.Shared.Domain.Statics;
 using GemTracker.Shared.Services.Responses;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ namespace GemTracker.Shared.Services
         {
             return new ConfigurationResponse
             {
-                JobConfig = await _fileService.GetAsync<JobConfigFile>(PathTo.Job(fileName))
+                JobConfig = await _fileService.GetAsync<JobFile>(PathTo.Job(fileName))
             };
         }
     }

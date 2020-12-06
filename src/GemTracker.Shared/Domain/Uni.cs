@@ -4,7 +4,7 @@ using GemTracker.Shared.Domain.Models;
 using GemTracker.Shared.Domain.Statics;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -31,15 +31,15 @@ namespace GemTracker.Shared.Domain
             StorageFilePathDeleted = PathTo.Deleted(DexType.UNISWAP, storagePath);
             StorageFilePathAdded = PathTo.Added(DexType.UNISWAP, storagePath);
         }
-        public async Task<UniswapTokensResponse> FetchAllAsync()
+        public async Task<ListServiceResponse<Token>> FetchAllAsync()
         {
-            var result = new UniswapTokensResponse();
+            var result = new ListServiceResponse<Token>();
 
             var response = await _uniswapService.FetchAllAsync();
 
             if (response.Success)
             {
-                result.Tokens = response.Tokens;
+                result.ListResponse = response.ListResponse;
             }
             else
             {

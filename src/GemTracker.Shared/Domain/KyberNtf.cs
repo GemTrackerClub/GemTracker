@@ -2,7 +2,7 @@
 using GemTracker.Shared.Domain.Models;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,9 +34,9 @@ namespace GemTracker.Shared.Domain
                 {
                     foreach (var gem in gems)
                     {
-                        Task<EthPlorerTokenInfoResponse> tokenInfoTask = null;
-                        Task<EtherScanResponse> contractTask = null;
-                        Task<EthPlorerTopHoldersResponse> holdersTask = null;
+                        Task<SingleServiceResponse<TokenInfo>> tokenInfoTask = null;
+                        Task<SingleServiceResponse<SmartContract>> contractTask = null;
+                        Task<SingleServiceResponse<TopHolderList>> holdersTask = null;
 
                         await TaskExt.Sequence(
                             () => { return tokenInfoTask = _ethPlorerService.FetchTokenInfoAsync(gem.Id); },

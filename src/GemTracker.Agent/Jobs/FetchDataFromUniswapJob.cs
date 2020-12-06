@@ -52,7 +52,7 @@ namespace GemTracker.Agent.Jobs
 
                 if (latestAll.Success)
                 {
-                    Logger.Info($"{Dex}|LATEST|{latestAll.Tokens.Count()}");
+                    Logger.Info($"{Dex}|LATEST|{latestAll.ListResponse.Count()}");
 
                     var loadedAll = await uniswap.LoadAllAsync();
 
@@ -62,8 +62,8 @@ namespace GemTracker.Agent.Jobs
                         Logger.Info($"{Dex}|LOADED ALL DELETED|{loadedAll.OldListDeleted.Count()}");
                         Logger.Info($"{Dex}|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
 
-                        var recentlyDeletedAll = uniswap.CheckDeleted(loadedAll.OldList, latestAll.Tokens);
-                        var recentlyAddedAll = uniswap.CheckAdded(loadedAll.OldList, latestAll.Tokens);
+                        var recentlyDeletedAll = uniswap.CheckDeleted(loadedAll.OldList, latestAll.ListResponse);
+                        var recentlyAddedAll = uniswap.CheckAdded(loadedAll.OldList, latestAll.ListResponse);
 
                         loadedAll.OldListDeleted.AddRange(recentlyDeletedAll);
                         loadedAll.OldListAdded.AddRange(recentlyAddedAll);
@@ -71,7 +71,7 @@ namespace GemTracker.Agent.Jobs
                         await _fileService.SetAsync(uniswap.StorageFilePathDeleted, loadedAll.OldListDeleted);
                         await _fileService.SetAsync(uniswap.StorageFilePathAdded, loadedAll.OldListAdded);
 
-                        await _fileService.SetAsync(uniswap.StorageFilePath, latestAll.Tokens);
+                        await _fileService.SetAsync(uniswap.StorageFilePath, latestAll.ListResponse);
 
                         if (cfg.JobConfig.Notify)
                         {

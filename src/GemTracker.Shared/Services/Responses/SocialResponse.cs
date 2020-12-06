@@ -1,8 +1,9 @@
-﻿namespace GemTracker.Shared.Services.Responses
+﻿using GemTracker.Shared.Services.Responses.Abstract;
+
+namespace GemTracker.Shared.Services.Responses
 {
-    public class SocialResponse
+    public class SocialResponse : ServiceResponse
     {
         public bool Success { get; set; }
-        public string Message { get; set; }
     }
 }

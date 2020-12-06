@@ -2,7 +2,7 @@
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Extensions;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,11 +68,11 @@ namespace GemTracker.Shared.Domain
         }
         public static Tuple<IReplyMarkup, string> ForPremiumTelegram(
             Gem gem,
-            UniswapTokenDataResponse uniResponse,
-            EthPlorerTokenInfoResponse ethPlorerTokenInfoResponse,
-            EtherScanResponse etherScanResponse,
-            UniswapPairDataResponse pairResponse,
-            EthPlorerTopHoldersResponse ethPlorerTopHoldersResponse
+            SingleServiceResponse<TokenData> uniResponse,
+            SingleServiceResponse<TokenInfo> ethPlorerTokenInfoResponse,
+            SingleServiceResponse<SmartContract> etherScanResponse,
+            ListServiceResponse<PairData> pairResponse,
+            SingleServiceResponse<TopHolderList> ethPlorerTopHoldersResponse
             )
         {
             string tokenInfo = string.Empty;
@@ -84,8 +84,8 @@ namespace GemTracker.Shared.Domain
                 if (uniResponse.Success)
                 {
                     tokenInfo +=
-                        $"Initial Price: _${uniResponse.TokenData.Price} USD_\n" +
-                        $"Txns: _{uniResponse.TokenData.DailyTxns}_\n\n";
+                        $"Initial Price: _${uniResponse.ObjectResponse.Price} USD_\n" +
+                        $"Txns: _{uniResponse.ObjectResponse.DailyTxns}_\n\n";
                 }
                 else
                     tokenInfo += $"`Data unavailable` \n\n";
@@ -99,15 +99,15 @@ namespace GemTracker.Shared.Domain
 
                 if (ethPlorerTokenInfoResponse.Success)
                 {
-                    var dec = Convert.ToInt32(ethPlorerTokenInfoResponse.TokenInfo.Decimals);
-                    var val = BigInteger.Parse(ethPlorerTokenInfoResponse.TokenInfo.TotalSupply);
+                    var dec = Convert.ToInt32(ethPlorerTokenInfoResponse.ObjectResponse.Decimals);
+                    var val = BigInteger.Parse(ethPlorerTokenInfoResponse.ObjectResponse.TotalSupply);
 
-                    var owner = string.IsNullOrWhiteSpace(ethPlorerTokenInfoResponse.TokenInfo.Owner)
+                    var owner = string.IsNullOrWhiteSpace(ethPlorerTokenInfoResponse.ObjectResponse.Owner)
                         ? $"Owner: [0x](https://etherscan.io/)\n"
-                        : $"Owner: [{ethPlorerTokenInfoResponse.TokenInfo.Owner}](https://etherscan.io/address/{ethPlorerTokenInfoResponse.TokenInfo.Owner})\n";
+                        : $"Owner: [{ethPlorerTokenInfoResponse.ObjectResponse.Owner}](https://etherscan.io/address/{ethPlorerTokenInfoResponse.ObjectResponse.Owner})\n";
 
                     tokenInfoDetails +=
-                        $"Transfers: _{ethPlorerTokenInfoResponse.TokenInfo.TransfersCount}_\n" +
+                        $"Transfers: _{ethPlorerTokenInfoResponse.ObjectResponse.TransfersCount}_\n" +
                         owner +
                         $"Total supply: _{UnitConversion.Convert.FromWei(val, dec)}_ {gem.Symbol} \n\n";
                 }
@@ -124,9 +124,9 @@ namespace GemTracker.Shared.Domain
                 if (uniResponse.Success)
                 {
                     liquidityInfo +=
-                        $"USD: _${uniResponse.TokenData.LiquidityUSD}_\n" +
-                        $"ETH: _{uniResponse.TokenData.LiquidityETH}_\n" +
-                        $"{gem.Symbol}: _{uniResponse.TokenData.LiquidityToken}_\n\n";
+                        $"USD: _${uniResponse.ObjectResponse.LiquidityUSD}_\n" +
+                        $"ETH: _{uniResponse.ObjectResponse.LiquidityETH}_\n" +
+                        $"{gem.Symbol}: _{uniResponse.ObjectResponse.LiquidityToken}_\n\n";
                 }
                 else
                     liquidityInfo += $"`Data unavailable` \n\n";
@@ -138,7 +138,7 @@ namespace GemTracker.Shared.Domain
             {
                 if (etherScanResponse.Success)
                 {
-                    contractInfo = etherScanResponse.Contract.IsVerified
+                    contractInfo = etherScanResponse.ObjectResponse.IsVerified
                         ? $"✅ [Contract](https://etherscan.io/address/{gem.Id}#code) is verified \n\n"
                         : $"❌ [Contract](https://etherscan.io/address/{gem.Id}#code) is NOT verified \n\n";
                 }
@@ -154,7 +154,7 @@ namespace GemTracker.Shared.Domain
 
                 if (pairResponse.Success)
                 {
-                    foreach (var item in pairResponse.Pairs)
+                    foreach (var item in pairResponse.ListResponse)
                     {
                         formPair +=
                             $"`{item.Token0.Symbol}/{item.Token1.Symbol}`\n" +
@@ -178,7 +178,7 @@ namespace GemTracker.Shared.Domain
             {
                 if (ethPlorerTokenInfoResponse.Success)
                 {
-                    topHoldersInfo += $"🌐 *Current hodlers*: {ethPlorerTokenInfoResponse.TokenInfo.HoldersCount}.\n";
+                    topHoldersInfo += $"🌐 *Current hodlers*: {ethPlorerTokenInfoResponse.ObjectResponse.HoldersCount}.\n";
                 }
                 else
                 {
@@ -191,7 +191,7 @@ namespace GemTracker.Shared.Domain
 
                     var counter = 1;
 
-                    foreach (var item in ethPlorerTopHoldersResponse.HolderList.Holders)
+                    foreach (var item in ethPlorerTopHoldersResponse.ObjectResponse.Holders)
                     {
                         topHoldersInfo += $"[Hodler - {counter++}](https://etherscan.io/token/{gem.Id}?a={item.Address}) - `{item.Share}%` \n";
                     }

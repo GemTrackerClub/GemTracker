@@ -1,10 +1,10 @@
-﻿using GemTracker.Shared.Domain.Configs;
+﻿using GemTracker.Shared.Domain.Configs.Jobs;
 
 namespace GemTracker.Shared.Services.Responses
 {
     public class ConfigurationResponse
     {
-        public JobConfigFile JobConfig { get; set; }
+        public JobFile JobConfig { get; set; }
         public bool Success => !(JobConfig is null);
     }
 }

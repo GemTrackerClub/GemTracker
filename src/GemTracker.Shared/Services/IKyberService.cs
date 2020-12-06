@@ -1,6 +1,6 @@
 ﻿using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Net;
 using System.Text.Json;
@@ -10,15 +10,15 @@ namespace GemTracker.Shared.Services
 {
     public interface IKyberService
     {
-        Task<KyberTokensResponse> FetchAllAsync();
+        Task<SingleServiceResponse<KyberTokenList>> FetchAllAsync();
     }
 
     public class KyberService : IKyberService
     {
         private readonly string _baseUrl = "https://api.kyber.network/";
-        public async Task<KyberTokensResponse> FetchAllAsync()
+        public async Task<SingleServiceResponse<KyberTokenList>> FetchAllAsync()
         {
-            var result = new KyberTokensResponse();
+            var result = new SingleServiceResponse<KyberTokenList>();
             try
             {
                 using var client = new WebClient();
@@ -26,7 +26,7 @@ namespace GemTracker.Shared.Services
 
                 if (!string.IsNullOrWhiteSpace(httpApiResult))
                 {
-                    result.List = JsonSerializer.Deserialize<KyberTokenList>(httpApiResult);
+                    result.ObjectResponse = JsonSerializer.Deserialize<KyberTokenList>(httpApiResult);
                 }
             }
             catch (Exception ex)

@@ -1,6 +1,6 @@
 ﻿using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
-using GemTracker.Shared.Services.Responses;
+using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +12,8 @@ namespace GemTracker.Shared.Services
 {
     public interface IEthPlorerService
     {
-        Task<EthPlorerTopHoldersResponse> FetchTopHoldersAsync(string contractAddress, int numberOfHolders = 100);
-        Task<EthPlorerTokenInfoResponse> FetchTokenInfoAsync(string contractAddress);
+        Task<SingleServiceResponse<TopHolderList>> FetchTopHoldersAsync(string contractAddress, int numberOfHolders = 100);
+        Task<SingleServiceResponse<TokenInfo>> FetchTokenInfoAsync(string contractAddress);
     }
     public class EthPlorerService : IEthPlorerService
     {
@@ -25,9 +25,9 @@ namespace GemTracker.Shared.Services
             _apiKey = apiKey;
         }
 
-        public async Task<EthPlorerTokenInfoResponse> FetchTokenInfoAsync(string contractAddress)
+        public async Task<SingleServiceResponse<TokenInfo>> FetchTokenInfoAsync(string contractAddress)
         {
-            var result = new EthPlorerTokenInfoResponse();
+            var result = new SingleServiceResponse<TokenInfo>();
             var parameters = new Dictionary<string, object>();
             try
             {
@@ -35,7 +35,7 @@ namespace GemTracker.Shared.Services
                 string httpApiResult = await client.DownloadStringTaskAsync(
                     ConstructRequest("getTokenInfo", contractAddress, parameters));
 
-                result.TokenInfo = JsonSerializer.Deserialize<TokenInfo>(httpApiResult);
+                result.ObjectResponse = JsonSerializer.Deserialize<TokenInfo>(httpApiResult);
             }
             catch (Exception ex)
             {
@@ -44,9 +44,9 @@ namespace GemTracker.Shared.Services
             return result;
         }
 
-        public async Task<EthPlorerTopHoldersResponse> FetchTopHoldersAsync(string contractAddress, int numberOfHolders = 100)
+        public async Task<SingleServiceResponse<TopHolderList>> FetchTopHoldersAsync(string contractAddress, int numberOfHolders = 100)
         {
-            var result = new EthPlorerTopHoldersResponse();
+            var result = new SingleServiceResponse<TopHolderList>();
             var parameters = new Dictionary<string, object>()
             {
                 {"limit", numberOfHolders }
@@ -58,7 +58,7 @@ namespace GemTracker.Shared.Services
                 string httpApiResult = await client.DownloadStringTaskAsync(
                     ConstructRequest("getTopTokenHolders", contractAddress, parameters));
 
-                result.HolderList = new TopHolderList
+                result.ObjectResponse = new TopHolderList
                 {
                     Holders = JsonSerializer.Deserialize<TopHolderList>(httpApiResult).Holders
                 };
