@@ -2,7 +2,6 @@
 using GemTracker.Shared.Domain.Models;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
-using GemTracker.Shared.Services.Responses;
 using GemTracker.Shared.Services.Responses.Generic;
 using System;
 using System.Collections.Generic;

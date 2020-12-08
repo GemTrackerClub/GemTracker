@@ -1,4 +1,5 @@
-﻿using GemTracker.Shared.Domain;
+﻿using GemTracker.Shared.Dexchanges;
+using GemTracker.Shared.Domain;
 using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
@@ -45,8 +46,7 @@ namespace GemTracker.Agent.Jobs
 
                 var cfg = await _configurationService.GetJobConfigAsync(jobConfigFileName);
 
-                var uniswap = new Uni(_uniswapService, _fileService);
-                uniswap.SetPaths(storagePath);
+                var uniswap = new UniDexchange(_uniswapService, _fileService, storagePath);
 
                 var latestAll = await uniswap.FetchAllAsync();
 
@@ -62,8 +62,8 @@ namespace GemTracker.Agent.Jobs
                         Logger.Info($"{Dex}|LOADED ALL DELETED|{loadedAll.OldListDeleted.Count()}");
                         Logger.Info($"{Dex}|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
 
-                        var recentlyDeletedAll = uniswap.CheckDeleted(loadedAll.OldList, latestAll.ListResponse);
-                        var recentlyAddedAll = uniswap.CheckAdded(loadedAll.OldList, latestAll.ListResponse);
+                        var recentlyDeletedAll = uniswap.CheckDeleted(loadedAll.OldList, latestAll.ListResponse, TokenActionType.DELETED);
+                        var recentlyAddedAll = uniswap.CheckAdded(loadedAll.OldList, latestAll.ListResponse, TokenActionType.ADDED);
 
                         loadedAll.OldListDeleted.AddRange(recentlyDeletedAll);
                         loadedAll.OldListAdded.AddRange(recentlyAddedAll);

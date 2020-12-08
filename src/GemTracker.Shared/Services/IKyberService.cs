@@ -10,15 +10,15 @@ namespace GemTracker.Shared.Services
 {
     public interface IKyberService
     {
-        Task<SingleServiceResponse<KyberTokenList>> FetchAllAsync();
+        Task<ListServiceResponse<KyberToken>> FetchAllAsync();
     }
 
     public class KyberService : IKyberService
     {
         private readonly string _baseUrl = "https://api.kyber.network/";
-        public async Task<SingleServiceResponse<KyberTokenList>> FetchAllAsync()
+        public async Task<ListServiceResponse<KyberToken>> FetchAllAsync()
         {
-            var result = new SingleServiceResponse<KyberTokenList>();
+            var result = new ListServiceResponse<KyberToken>();
             try
             {
                 using var client = new WebClient();
@@ -26,7 +26,16 @@ namespace GemTracker.Shared.Services
 
                 if (!string.IsNullOrWhiteSpace(httpApiResult))
                 {
-                    result.ObjectResponse = JsonSerializer.Deserialize<KyberTokenList>(httpApiResult);
+                    var response = JsonSerializer.Deserialize<KyberTokenList>(httpApiResult);
+
+                    if ((response is null) && !response.Error)
+                    {
+                        result.ListResponse = response.Data;
+                    }
+                    else
+                    {
+                        result.Message = $"Response error";
+                    }
                 }
             }
             catch (Exception ex)

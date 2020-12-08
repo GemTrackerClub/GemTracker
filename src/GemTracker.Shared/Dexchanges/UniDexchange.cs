@@ -1,7 +1,6 @@
-﻿using GemTracker.Shared.Domain.DTOs;
+﻿using GemTracker.Shared.Dexchanges.Abstract;
+using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Domain.Enums;
-using GemTracker.Shared.Domain.Models;
-using GemTracker.Shared.Domain.Statics;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using GemTracker.Shared.Services.Responses.Generic;
@@ -9,27 +8,21 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace GemTracker.Shared.Domain
+namespace GemTracker.Shared.Dexchanges
 {
-    public class Uni
+    public class UniDexchange : Dexchange, IDexchange<Token, Gem>
     {
         private readonly IUniswapService _uniswapService;
         private readonly IFileService _fileService;
-
-        public string StorageFilePath { get; private set; }
-        public string StorageFilePathDeleted { get; private set; }
-        public string StorageFilePathAdded { get; private set; }
-        public Uni(IUniswapService uniswapService,
-            IFileService fileService)
+        public UniDexchange(
+            IUniswapService uniswapService,
+            IFileService fileService,
+            string storagePath)
         {
             _uniswapService = uniswapService;
             _fileService = fileService;
-        }
-        public void SetPaths(string storagePath)
-        {
-            StorageFilePath = PathTo.All(DexType.UNISWAP, storagePath);
-            StorageFilePathDeleted = PathTo.Deleted(DexType.UNISWAP, storagePath);
-            StorageFilePathAdded = PathTo.Added(DexType.UNISWAP, storagePath);
+
+            SetPaths(storagePath, DexType.UNISWAP);
         }
         public async Task<ListServiceResponse<Token>> FetchAllAsync()
         {
@@ -47,9 +40,9 @@ namespace GemTracker.Shared.Domain
             }
             return result;
         }
-        public async Task<Loaded<Token>> LoadAllAsync()
+        public async Task<ListLoadedResponse<Token, Gem>> LoadAllAsync()
         {
-            var result = new Loaded<Token>();
+            var result = new ListLoadedResponse<Token, Gem>();
             try
             {
                 result.OldList = await _fileService.GetAsync<IEnumerable<Token>>(StorageFilePath);
@@ -62,10 +55,5 @@ namespace GemTracker.Shared.Domain
             }
             return result;
         }
-        public IEnumerable<Gem> CheckDeleted(IEnumerable<Token> oldList, IEnumerable<Token> newList)
-            => DexTokenCompare.DeletedTokens(oldList, newList);
-
-        public IEnumerable<Gem> CheckAdded(IEnumerable<Token> oldList, IEnumerable<Token> newList)
-            => DexTokenCompare.AddedTokens(oldList, newList);
     }
 }
