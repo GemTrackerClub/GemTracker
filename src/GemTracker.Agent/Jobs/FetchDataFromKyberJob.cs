@@ -1,7 +1,11 @@
-﻿using GemTracker.Shared.Dexchanges;
-using GemTracker.Shared.Domain;
+﻿using GemTracker.Shared.Builders;
+using GemTracker.Shared.Dexchanges.Abstract;
+using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Domain.Enums;
+using GemTracker.Shared.Domain.Statics;
 using GemTracker.Shared.Extensions;
+using GemTracker.Shared.Fetchers;
+using GemTracker.Shared.Notifications.Abstract;
 using GemTracker.Shared.Services;
 using NLog;
 using Quartz;
@@ -16,26 +20,26 @@ namespace GemTracker.Agent.Jobs
     {
         private static readonly Logger Logger = LogManager.GetLogger("GEM");
         private readonly IConfigurationService _configurationService;
-        private readonly IKyberService _kyberService;
         private readonly IFileService _fileService;
-        private readonly ITelegramService _telegramService;
-        private readonly IEtherScanService _etherScanService;
-        private readonly IEthPlorerService _ethPlorerService;
-        private readonly string Dex = DexType.KYBER.GetDescription().ToUpperInvariant();
+
+        private readonly IDexchange<KyberToken, Gem> _dexchange;
+        private readonly IFetchDataForKyber _fetchDataForKyber;
+        private readonly INotificationFromKyber _notificationFromKyber;
+
+        private static readonly DexType Type = DexType.KYBER;
+        private readonly string Dex = Type.GetDescription().ToUpperInvariant();
         public FetchDataFromKyberJob(
             IConfigurationService configurationService,
-            IKyberService kyberService,
             IFileService fileService,
-            ITelegramService telegramService,
-            IEtherScanService etherScanService,
-            IEthPlorerService ethPlorerService)
+            IDexchange<KyberToken, Gem> dexchange,
+            IFetchDataForKyber fetchDataForKyber,
+            INotificationFromKyber notificationFromKyber)
         {
             _configurationService = configurationService;
-            _kyberService = kyberService;
             _fileService = fileService;
-            _telegramService = telegramService;
-            _etherScanService = etherScanService;
-            _ethPlorerService = ethPlorerService;
+            _dexchange = dexchange;
+            _fetchDataForKyber = fetchDataForKyber;
+            _notificationFromKyber = notificationFromKyber;
         }
         public async Task Execute(IJobExecutionContext context)
         {
@@ -46,15 +50,13 @@ namespace GemTracker.Agent.Jobs
 
                 var cfg = await _configurationService.GetJobConfigAsync(jobConfigFileName);
 
-                var kyber = new KyberDexchange(_kyberService, _fileService, storagePath);
-
-                var latestAll = await kyber.FetchAllAsync();
+                var latestAll = await _dexchange.FetchAllAsync();
 
                 if (latestAll.Success)
                 {
                     Logger.Info($"{Dex}|LATEST|{latestAll.ListResponse.Count()}");
 
-                    var loadedAll = await kyber.LoadAllAsync();
+                    var loadedAll = await _dexchange.LoadAllAsync(storagePath);
 
                     if (loadedAll.Success)
                     {
@@ -68,11 +70,15 @@ namespace GemTracker.Agent.Jobs
                         var loadedNotActive = loadedAll.OldListDeleted.ToList();
                         var loadedActive = loadedAll.OldListAdded.ToList();
 
-                        var recentlyAddedToActive = kyber.CheckAdded(loadedActive, latestActive, TokenActionType.KYBER_ADDED_TO_ACTIVE);
-                        var recentlyDeletedFromActive = kyber.CheckDeleted(loadedActive, latestActive, TokenActionType.KYBER_DELETED_FROM_ACTIVE);
+                        var recentlyAddedToActive =
+                            DexTokenCompare.AddedTokens(loadedActive, latestActive, TokenActionType.KYBER_ADDED_TO_ACTIVE);
+                        var recentlyDeletedFromActive =
+                            DexTokenCompare.DeletedTokens(loadedActive, latestActive, TokenActionType.KYBER_DELETED_FROM_ACTIVE);
 
-                        var recentlyAddedToNotActive = kyber.CheckAdded(loadedNotActive, latestNotActive, TokenActionType.KYBER_ADDED_TO_NOT_ACTIVE);
-                        var recentlyDeletedFromNotActive = kyber.CheckDeleted(loadedNotActive, latestNotActive, TokenActionType.KYBER_DELETED_FROM_NOT_ACTIVE);
+                        var recentlyAddedToNotActive =
+                            DexTokenCompare.AddedTokens(loadedNotActive, latestNotActive, TokenActionType.KYBER_ADDED_TO_NOT_ACTIVE);
+                        var recentlyDeletedFromNotActive =
+                            DexTokenCompare.DeletedTokens(loadedNotActive, latestNotActive, TokenActionType.KYBER_DELETED_FROM_NOT_ACTIVE);
 
                         loadedAll.OldListDeleted.AddRange(recentlyAddedToNotActive);
                         foreach (var item in recentlyDeletedFromNotActive)
@@ -93,42 +99,44 @@ namespace GemTracker.Agent.Jobs
                             }
                         }
 
-                        await _fileService.SetAsync(kyber.StorageFilePathDeleted, loadedAll.OldListDeleted);
-                        await _fileService.SetAsync(kyber.StorageFilePathAdded, loadedAll.OldListAdded);
+                        await _fileService.SetAsync(PathTo.Deleted(Type, storagePath), loadedAll.OldListDeleted);
+                        await _fileService.SetAsync(PathTo.Added(Type, storagePath), loadedAll.OldListAdded);
 
-                        await _fileService.SetAsync(kyber.StorageFilePath, latestAll.ListResponse);
+                        await _fileService.SetAsync(PathTo.All(Type, storagePath), latestAll.ListResponse);
 
                         if (cfg.JobConfig.Notify)
                         {
                             Logger.Info($"{Dex}|TELEGRAM|ON");
 
-                            var telegramNotification = new KyberNtf(
-                                _telegramService,
-                                _etherScanService,
-                                _ethPlorerService);
+                            ReportDirector reportDirector = new ReportDirector();
 
-                            var notifiedAddedToActive = await telegramNotification.SendAsync(recentlyAddedToActive);
+                            //var telegramNotification = new KyberNtf(
+                            //    _telegramService,
+                            //    _etherScanService,
+                            //    _ethPlorerService);
+
+                            var notifiedAddedToActive = await _notificationFromKyber.SendAsync(recentlyAddedToActive);
 
                             if (notifiedAddedToActive.Success)
                                 Logger.Info($"{Dex}|TELEGRAM|ADDED TO ACTIVE|SENT");
                             else
                                 Logger.Warn($"{Dex}|TELEGRAM|ADDED TO ACTIVE|{notifiedAddedToActive.Message}");
 
-                            var notifiedDeletedFromActive = await telegramNotification.SendAsync(recentlyDeletedFromActive);
+                            var notifiedDeletedFromActive = await _notificationFromKyber.SendAsync(recentlyDeletedFromActive);
 
                             if (notifiedDeletedFromActive.Success)
                                 Logger.Info($"{Dex}|TELEGRAM|DELETED FROM ACTIVE|SENT");
                             else
                                 Logger.Warn($"{Dex}|TELEGRAM|DELETED FROM ACTIVE|{notifiedDeletedFromActive.Message}");
 
-                            var notifiedAddedToNotActive = await telegramNotification.SendAsync(recentlyAddedToNotActive);
+                            var notifiedAddedToNotActive = await _notificationFromKyber.SendAsync(recentlyAddedToNotActive);
 
                             if (notifiedAddedToNotActive.Success)
                                 Logger.Info($"{Dex}|TELEGRAM|ADDED TO NOT ACTIVE|SENT");
                             else
                                 Logger.Warn($"{Dex}|TELEGRAM|ADDED TO NOT ACTIVE|{notifiedAddedToNotActive.Message}");
 
-                            var notifiedDeletedFromNotActive = await telegramNotification.SendAsync(recentlyDeletedFromNotActive);
+                            var notifiedDeletedFromNotActive = await _notificationFromKyber.SendAsync(recentlyDeletedFromNotActive);
 
                             if (notifiedDeletedFromNotActive.Success)
                                 Logger.Info($"{Dex}|TELEGRAM|DELETED FROM NOT ACTIVE|SENT");

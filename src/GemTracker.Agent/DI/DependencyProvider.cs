@@ -1,5 +1,11 @@
 ﻿using GemTracker.Agent.Jobs;
+using GemTracker.Shared.Dexchanges;
+using GemTracker.Shared.Dexchanges.Abstract;
 using GemTracker.Shared.Domain.Configs;
+using GemTracker.Shared.Domain.DTOs;
+using GemTracker.Shared.Fetchers;
+using GemTracker.Shared.Notifications.Abstract;
+using GemTracker.Shared.Notifications.Responses;
 using GemTracker.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -51,6 +57,21 @@ namespace GemTracker.Agent.DI
                 s => new EtherScanService(app.EtherScan.ApiKey));
             services.AddTransient<IEthPlorerService>(
                 s => new EthPlorerService(app.EthPlorer.ApiKey));
+            #endregion
+
+            #region Dexchanges
+            services.AddTransient<IDexchange<KyberToken, Gem>, KyberDexchange>();
+            services.AddTransient<IDexchange<Token, Gem>, UniDexchange>();
+            #endregion
+
+            #region Fetchers
+            services.AddTransient<IFetchDataForKyber, FetchDataForKyber>();
+            services.AddTransient<IFetchDataForUniswap, FetchDataForUniswap>();
+            #endregion
+
+            #region Notifications
+            services.AddTransient<INotificationFromUniswap, TelegramNotificationFromUniswap>();
+            services.AddTransient<INotificationFromKyber, TelegramNotificationFromKyber>();
             #endregion
 
             var serviceProvider = services.BuildServiceProvider();

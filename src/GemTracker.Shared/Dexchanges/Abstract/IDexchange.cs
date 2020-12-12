@@ -6,6 +6,6 @@ namespace GemTracker.Shared.Dexchanges.Abstract
     public interface IDexchange<T, G>
     {
         Task<ListServiceResponse<T>> FetchAllAsync();
-        Task<ListLoadedResponse<T, G>> LoadAllAsync();
+        Task<ListLoadedResponse<T, G>> LoadAllAsync(string storagePath);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using GemTracker.Shared.Dexchanges.Abstract;
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Domain.Enums;
+using GemTracker.Shared.Domain.Statics;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using GemTracker.Shared.Services.Responses.Generic;
@@ -10,19 +11,16 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Dexchanges
 {
-    public class UniDexchange : Dexchange, IDexchange<Token, Gem>
+    public class UniDexchange : IDexchange<Token, Gem>
     {
         private readonly IUniswapService _uniswapService;
         private readonly IFileService _fileService;
         public UniDexchange(
             IUniswapService uniswapService,
-            IFileService fileService,
-            string storagePath)
+            IFileService fileService)
         {
             _uniswapService = uniswapService;
             _fileService = fileService;
-
-            SetPaths(storagePath, DexType.UNISWAP);
         }
         public async Task<ListServiceResponse<Token>> FetchAllAsync()
         {
@@ -40,14 +38,14 @@ namespace GemTracker.Shared.Dexchanges
             }
             return result;
         }
-        public async Task<ListLoadedResponse<Token, Gem>> LoadAllAsync()
+        public async Task<ListLoadedResponse<Token, Gem>> LoadAllAsync(string storagePath)
         {
             var result = new ListLoadedResponse<Token, Gem>();
             try
             {
-                result.OldList = await _fileService.GetAsync<IEnumerable<Token>>(StorageFilePath);
-                result.OldListDeleted = await _fileService.GetAsync<List<Gem>>(StorageFilePathDeleted);
-                result.OldListAdded = await _fileService.GetAsync<List<Gem>>(StorageFilePathAdded);
+                result.OldList = await _fileService.GetAsync<IEnumerable<Token>>(PathTo.All(DexType.UNISWAP, storagePath));
+                result.OldListDeleted = await _fileService.GetAsync<List<Gem>>(PathTo.Deleted(DexType.UNISWAP, storagePath));
+                result.OldListAdded = await _fileService.GetAsync<List<Gem>>(PathTo.Added(DexType.UNISWAP, storagePath));
             }
             catch (Exception ex)
             {
