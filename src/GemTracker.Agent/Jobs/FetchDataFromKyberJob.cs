@@ -1,5 +1,4 @@
-﻿using GemTracker.Shared.Builders;
-using GemTracker.Shared.Dexchanges.Abstract;
+﻿using GemTracker.Shared.Dexchanges.Abstract;
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Domain.Statics;
@@ -71,14 +70,14 @@ namespace GemTracker.Agent.Jobs
                         var loadedActive = loadedAll.OldListAdded.ToList();
 
                         var recentlyAddedToActive =
-                            DexTokenCompare.AddedTokens(loadedActive, latestActive, TokenActionType.KYBER_ADDED_TO_ACTIVE);
+                            DexTokenCompare.AddedTokens(loadedActive, latestActive, TokenActionType.KYBER_ADDED_TO_ACTIVE, DexType.KYBER);
                         var recentlyDeletedFromActive =
-                            DexTokenCompare.DeletedTokens(loadedActive, latestActive, TokenActionType.KYBER_DELETED_FROM_ACTIVE);
+                            DexTokenCompare.DeletedTokens(loadedActive, latestActive, TokenActionType.KYBER_DELETED_FROM_ACTIVE, DexType.KYBER);
 
                         var recentlyAddedToNotActive =
-                            DexTokenCompare.AddedTokens(loadedNotActive, latestNotActive, TokenActionType.KYBER_ADDED_TO_NOT_ACTIVE);
+                            DexTokenCompare.AddedTokens(loadedNotActive, latestNotActive, TokenActionType.KYBER_ADDED_TO_NOT_ACTIVE, DexType.KYBER);
                         var recentlyDeletedFromNotActive =
-                            DexTokenCompare.DeletedTokens(loadedNotActive, latestNotActive, TokenActionType.KYBER_DELETED_FROM_NOT_ACTIVE);
+                            DexTokenCompare.DeletedTokens(loadedNotActive, latestNotActive, TokenActionType.KYBER_DELETED_FROM_NOT_ACTIVE, DexType.KYBER);
 
                         loadedAll.OldListDeleted.AddRange(recentlyAddedToNotActive);
                         foreach (var item in recentlyDeletedFromNotActive)
@@ -108,12 +107,41 @@ namespace GemTracker.Agent.Jobs
                         {
                             Logger.Info($"{Dex}|TELEGRAM|ON");
 
-                            ReportDirector reportDirector = new ReportDirector();
+                            if (recentlyAddedToActive.AnyAndNotNull())
+                            {
+                                var filledForSend = await _fetchDataForKyber.FetchData(recentlyAddedToActive);
+                                if (filledForSend.AnyAndNotNull())
+                                {
 
-                            //var telegramNotification = new KyberNtf(
-                            //    _telegramService,
-                            //    _etherScanService,
-                            //    _ethPlorerService);
+                                }
+                            }
+
+                            if (recentlyDeletedFromActive.AnyAndNotNull())
+                            {
+                                var filledForSend = await _fetchDataForKyber.FetchData(recentlyDeletedFromActive);
+                                if (filledForSend.AnyAndNotNull())
+                                {
+
+                                }
+                            }
+
+                            if (recentlyAddedToNotActive.AnyAndNotNull())
+                            {
+                                var filledForSend = await _fetchDataForKyber.FetchData(recentlyAddedToNotActive);
+                                if (filledForSend.AnyAndNotNull())
+                                {
+
+                                }
+                            }
+
+                            if (recentlyDeletedFromNotActive.AnyAndNotNull())
+                            {
+                                var filledForSend = await _fetchDataForKyber.FetchData(recentlyDeletedFromNotActive);
+                                if (filledForSend.AnyAndNotNull())
+                                {
+
+                                }
+                            }
 
                             var notifiedAddedToActive = await _notificationFromKyber.SendAsync(recentlyAddedToActive);
 

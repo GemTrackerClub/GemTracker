@@ -14,6 +14,8 @@ namespace GemTracker.Shared.Domain.DTOs
         [JsonPropertyName("ispublished")]
         public bool IsPublished { get; set; }
         [JsonIgnore]
+        public DexType DexType { get; set; }
+        [JsonIgnore]
         public DateTime DateTime
         {
             get 

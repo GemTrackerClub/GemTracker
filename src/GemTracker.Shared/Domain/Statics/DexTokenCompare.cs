@@ -8,7 +8,11 @@ namespace GemTracker.Shared.Domain.Statics
 {
     public static class DexTokenCompare
     {
-        public static IEnumerable<Gem> DeletedTokens(IEnumerable<Token> oldList, IEnumerable<Token> newList, TokenActionType tokenActionType)
+        public static IEnumerable<Gem> DeletedTokens(
+            IEnumerable<Token> oldList, 
+            IEnumerable<Token> newList, 
+            TokenActionType tokenActionType,
+            DexType dexType)
         {
             var recentlyDeleted = new List<Gem>();
 
@@ -28,7 +32,8 @@ namespace GemTracker.Shared.Domain.Statics
                         Symbol = item.Symbol,
                         Recently = tokenActionType,
                         Date = DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
-                        IsPublished = false
+                        IsPublished = false,
+                        DexType = dexType
                     };
                     recentlyDeleted.Add(gem);
                 }
@@ -36,7 +41,11 @@ namespace GemTracker.Shared.Domain.Statics
             return recentlyDeleted;
         }
 
-        public static IEnumerable<Gem> AddedTokens(IEnumerable<Token> oldList, IEnumerable<Token> newList, TokenActionType tokenActionType)
+        public static IEnumerable<Gem> AddedTokens(
+            IEnumerable<Token> oldList, 
+            IEnumerable<Token> newList, 
+            TokenActionType tokenActionType,
+            DexType dexType)
         {
             var recentlyAdded = new List<Gem>();
 
@@ -56,7 +65,8 @@ namespace GemTracker.Shared.Domain.Statics
                         Symbol = item.Symbol,
                         Recently = tokenActionType,
                         Date = DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
-                        IsPublished = false
+                        IsPublished = false,
+                        DexType = dexType
                     };
                     recentlyAdded.Add(gem);
                 }

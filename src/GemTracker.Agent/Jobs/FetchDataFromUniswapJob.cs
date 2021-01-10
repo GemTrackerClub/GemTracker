@@ -1,5 +1,4 @@
-﻿using GemTracker.Shared.Builders;
-using GemTracker.Shared.Dexchanges.Abstract;
+﻿using GemTracker.Shared.Dexchanges.Abstract;
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Domain.Enums;
 using GemTracker.Shared.Domain.Statics;
@@ -65,9 +64,9 @@ namespace GemTracker.Agent.Jobs
                         Logger.Info($"{Dex}|LOADED ALL ADDED|{loadedAll.OldListAdded.Count()}");
 
                         var recentlyDeletedAll =
-                            DexTokenCompare.DeletedTokens(loadedAll.OldList, latestAll.ListResponse, TokenActionType.DELETED);
+                            DexTokenCompare.DeletedTokens(loadedAll.OldList, latestAll.ListResponse, TokenActionType.DELETED, DexType.UNISWAP);
                         var recentlyAddedAll =
-                            DexTokenCompare.AddedTokens(loadedAll.OldList, latestAll.ListResponse, TokenActionType.ADDED);
+                            DexTokenCompare.AddedTokens(loadedAll.OldList, latestAll.ListResponse, TokenActionType.ADDED, DexType.UNISWAP);
 
                         loadedAll.OldListDeleted.AddRange(recentlyDeletedAll);
                         loadedAll.OldListAdded.AddRange(recentlyAddedAll);
@@ -81,17 +80,25 @@ namespace GemTracker.Agent.Jobs
                         {
                             Logger.Info($"{Dex}|TELEGRAM|ON");
 
-                            var reportDirector = new ReportDirector();
+                            if (recentlyAddedAll.AnyAndNotNull())
+                            {
+                                var filledForSend = await _fetchDataForUniswap.FetchData(recentlyAddedAll);
 
-                            var telegramCommunityReport = new TelegramCommunityReport();
-                            var report = reportDirector.MakeReport(telegramCommunityReport);
-                            report.DisplayReport();
+                                if (filledForSend.AnyAndNotNull())
+                                {
 
-                            //var telegramNotification = new UniNtf(
-                            //    _telegramService,
-                            //    _uniswapService,
-                            //    _etherScanService,
-                            //    _ethPlorerService);
+                                }
+                            }
+
+                            if (recentlyDeletedAll.AnyAndNotNull())
+                            {
+                                var filledForSend = await _fetchDataForUniswap.FetchData(recentlyDeletedAll);
+
+                                if (filledForSend.AnyAndNotNull())
+                                {
+
+                                }
+                            }
 
                             var notifiedAboutDeleted = await _notificationFromUniswap.SendAsync(recentlyDeletedAll);
 
