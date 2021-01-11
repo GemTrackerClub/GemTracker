@@ -13,6 +13,15 @@ namespace GemTracker.Shared.Domain
                     InlineKeyboardButton.WithUrl("🤑 Hodlers", $"https://etherscan.io/token/{gemId}#balances"),
                 };
 
+        public static string ChartsContent(TokenActionType tokenAction, string gemSymbol)
+            => tokenAction == TokenActionType.ADDED
+                ?
+                    $"📊 *Charts*\n" +
+                    $"ChartEx [${gemSymbol}](https://chartex.pro/?symbol=UNISWAP:{gemSymbol}) |" +
+                    $" [${gemSymbol}/$WETH](https://chartex.pro/?symbol=UNISWAP:{gemSymbol}/WETH)\n\n"
+                :
+                    string.Empty;
+
         public static string RecentlyEmoji(TokenActionType tokenAction)
             => tokenAction == TokenActionType.ADDED || tokenAction == TokenActionType.KYBER_ADDED_TO_ACTIVE
                 ? "✅"

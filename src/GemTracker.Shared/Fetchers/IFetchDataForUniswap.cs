@@ -35,7 +35,13 @@ namespace GemTracker.Shared.Fetchers
 
             _steps = new HashSet<IStep>
             {
-                new TokenHeaderStep(),
+                new TokenRecentlyStep(),
+                new TokenNetworkEffectStep(),
+                new TokenStatisticsStep(),
+                new TokenWarningStep(),
+
+                new TokenChartStep(),
+
                 new TokenDataStep(_uniswapService),
                 new TokenDetailsStep(_ethPlorerService)
             };

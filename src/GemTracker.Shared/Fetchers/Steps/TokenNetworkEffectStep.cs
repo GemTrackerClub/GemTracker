@@ -6,18 +6,15 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Fetchers.Steps
 {
-    public class TokenHeaderStep : IStep
+    public class TokenNetworkEffectStep : IStep
     {
         public async Task<IStepResult> ResultAsync(Gem gem)
         {
             try
             {
-                var header =
-                    $"{SharedMessageContent.RecentlyEmoji(gem.Recently)}" +
-                    $" *{gem.Recently.GetDescription()}* -" +
-                    $" {gem.DexType.GetDescription().ToUpperInvariant()}\n\n";
+                var networkHeader = SharedMessageContent.NetworkEffectContent(gem.Recently, gem.Symbol, gem.Name);
 
-                return await Task.FromResult(new StepResult(StepResultType.Success, header));
+                return await Task.FromResult(new StepResult(StepResultType.Success, networkHeader));
             }
             catch (Exception ex)
             {
