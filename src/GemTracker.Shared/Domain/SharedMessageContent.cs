@@ -1,4 +1,9 @@
-﻿using GemTracker.Shared.Domain.Enums;
+﻿using GemTracker.Shared.Converters;
+using GemTracker.Shared.Domain.DTOs;
+using GemTracker.Shared.Domain.Enums;
+using GemTracker.Shared.Services.Responses.Generic;
+using System;
+using System.Numerics;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace GemTracker.Shared.Domain
@@ -54,5 +59,55 @@ namespace GemTracker.Shared.Domain
                     $"Make sure to delete the allowance using fe. [revoke.cash](https://revoke.cash)\n\n"
                 :
                     string.Empty;
+
+        public static string TokenDataContent(TokenActionType tokenAction, string symbol, SingleServiceResponse<TokenData> tokenData)
+        {
+            string tokenInfo = string.Empty;
+
+            if (tokenAction == TokenActionType.ADDED)
+            {
+                tokenInfo = $"🥇 *Token - ${symbol}*\n";
+
+                if (tokenData.Success)
+                {
+                    tokenInfo +=
+                        $"Initial Price: _${tokenData.ObjectResponse.Price} USD_\n" +
+                        $"Txns: _{tokenData.ObjectResponse.DailyTxns}_\n\n";
+                }
+                else
+                    tokenInfo += $"`Data unavailable` \n\n";
+            }
+
+            return tokenInfo;
+        }
+
+        public static string TokenDetailsContent(TokenActionType tokenAction, string symbol, SingleServiceResponse<TokenInfo> tokenInfo)
+        {
+            string tokenInfoDetails = string.Empty;
+
+            if (tokenAction == TokenActionType.ADDED || tokenAction == TokenActionType.KYBER_ADDED_TO_ACTIVE)
+            {
+                tokenInfoDetails += $"🥇 *Token Details*\n";
+
+                if (tokenInfo.Success)
+                {
+                    var dec = Convert.ToInt32(tokenInfo.ObjectResponse.Decimals);
+                    var val = BigInteger.Parse(tokenInfo.ObjectResponse.TotalSupply);
+
+                    var owner = string.IsNullOrWhiteSpace(tokenInfo.ObjectResponse.Owner)
+                        ? $"Owner: `Data unavailable`\n"
+                        : $"Owner: [{tokenInfo.ObjectResponse.Owner}](https://etherscan.io/address/{tokenInfo.ObjectResponse.Owner})\n";
+
+                    tokenInfoDetails +=
+                        $"Transfers: _{tokenInfo.ObjectResponse.TransfersCount}_\n" +
+                        owner +
+                        $"Total supply: _{UnitConversion.Convert.FromWei(val, dec)}_ {symbol} \n\n";
+                }
+                else
+                    tokenInfoDetails += $"`Data unavailable` \n\n";
+            }
+
+            return tokenInfoDetails;
+        }
     }
 }

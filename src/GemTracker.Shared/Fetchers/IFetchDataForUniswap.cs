@@ -51,8 +51,8 @@ namespace GemTracker.Shared.Fetchers
                 foreach (var step in _steps)
                 {
                     var result = await step.ResultAsync(gem);
-                    
-                    if(result.Success)
+
+                    if (result.Success)
                     {
 
                     }

@@ -1,8 +1,8 @@
-﻿using GemTracker.Shared.Domain.DTOs;
+﻿using GemTracker.Shared.Domain;
+using GemTracker.Shared.Domain.DTOs;
+using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Fetchers.Steps
@@ -16,7 +16,18 @@ namespace GemTracker.Shared.Fetchers.Steps
         }
         public async Task<IStepResult> ResultAsync(Gem gem)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var detailsData = await _ethPlorerService.FetchTokenInfoAsync(gem.Id);
+
+                var tokenDetails = SharedMessageContent.TokenDetailsContent(gem.Recently, gem.Symbol, detailsData);
+
+                return await Task.FromResult(new StepResult(StepResultType.Success, tokenDetails));
+            }
+            catch (Exception ex)
+            {
+                return await Task.FromResult(new StepResult(StepResultType.Error, ex.GetFullMessage()));
+            }
         }
     }
 }
