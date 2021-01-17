@@ -109,5 +109,24 @@ namespace GemTracker.Shared.Domain
 
             return tokenInfoDetails;
         }
+
+        public static string TokenContractContent(TokenActionType tokenAction, string tokenId, SingleServiceResponse<SmartContract> contract)
+        {
+            string contractInfo = string.Empty;
+
+            if (tokenAction == TokenActionType.ADDED)
+            {
+                if (contract.Success)
+                {
+                    contractInfo = contract.ObjectResponse.IsVerified
+                        ? $"✅ [Contract](https://etherscan.io/address/{tokenId}#code) is verified \n\n"
+                        : $"❌ [Contract](https://etherscan.io/address/{tokenId}#code) is NOT verified \n\n";
+                }
+                else
+                    contractInfo += $"`Data unavailable` \n\n";
+            }
+
+            return contractInfo;
+        }
     }
 }

@@ -7,22 +7,23 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Fetchers.Steps
 {
-    public class TokenDataStep : IStep
+    public class TokenContractStep : IStep
     {
-        private readonly IUniswapService _uniswapService;
-        public TokenDataStep(IUniswapService uniswapService)
+        private readonly IEtherScanService _etherScanService;
+        public TokenContractStep(IEtherScanService etherScanService)
         {
-            _uniswapService = uniswapService;
+            _etherScanService = etherScanService;
         }
+
         public async Task<IStepResult> ResultAsync(Gem gem)
         {
             try
             {
-                var tokenData = await _uniswapService.FetchTokenAsync(gem.Id);
+                var contractTask = await _etherScanService.IsSmartContractVerifiedAsync(gem.Id);
 
-                var tokenInfo = SharedMessageContent.TokenDataContent(gem.Recently, gem.Symbol, tokenData);
+                var contractDetails = SharedMessageContent.TokenContractContent(gem.Recently, gem.Id, contractTask);
 
-                return new StepResult(StepResultType.Success, tokenInfo);
+                return new StepResult(StepResultType.Success, contractDetails);
             }
             catch (Exception ex)
             {

@@ -43,7 +43,8 @@ namespace GemTracker.Shared.Fetchers
                 new TokenChartStep(),
 
                 new TokenDataStep(_uniswapService),
-                new TokenDetailsStep(_ethPlorerService)
+                new TokenDetailsStep(_ethPlorerService),
+                new TokenContractStep(_etherScanService)
             };
 
             foreach (var gem in gems)

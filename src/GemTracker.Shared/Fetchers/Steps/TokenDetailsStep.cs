@@ -22,7 +22,7 @@ namespace GemTracker.Shared.Fetchers.Steps
 
                 var tokenDetails = SharedMessageContent.TokenDetailsContent(gem.Recently, gem.Symbol, detailsData);
 
-                return await Task.FromResult(new StepResult(StepResultType.Success, tokenDetails));
+                return new StepResult(StepResultType.Success, tokenDetails);
             }
             catch (Exception ex)
             {
