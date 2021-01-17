@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain;
+using GemTracker.Shared.Domain.Configs;
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
 using System;
@@ -19,11 +20,13 @@ namespace GemTracker.Shared.Fetchers.Steps
                     $"💎 Token: *{gem.Name}*\n" +
                     $"🚨 Symbol: *{gem.Symbol}*\n\n";
 
-                return await Task.FromResult(new StepResult(StepResultType.Success, header));
+                return await Task.FromResult(
+                    new StepResult(StepResultType.Success, header, AudienceType.FREE));
             }
             catch (Exception ex)
             {
-                return await Task.FromResult(new StepResult(StepResultType.Error, ex.GetFullMessage()));
+                return await Task.FromResult(
+                    new StepResult(StepResultType.Error, ex.GetFullMessage(), AudienceType.FREE));
             }
         }
     }

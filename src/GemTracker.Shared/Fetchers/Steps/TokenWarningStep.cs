@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain;
+using GemTracker.Shared.Domain.Configs;
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
 using System;
@@ -14,11 +15,13 @@ namespace GemTracker.Shared.Fetchers.Steps
             {
                 var warningHeader = SharedMessageContent.WarningContent(gem.Recently, gem.Id);
 
-                return await Task.FromResult(new StepResult(StepResultType.Success, warningHeader));
+                return await Task.FromResult(
+                    new StepResult(StepResultType.Success, warningHeader, AudienceType.FREE));
             }
             catch (Exception ex)
             {
-                return await Task.FromResult(new StepResult(StepResultType.Error, ex.GetFullMessage()));
+                return await Task.FromResult
+                    (new StepResult(StepResultType.Error, ex.GetFullMessage(), AudienceType.FREE));
             }
         }
     }

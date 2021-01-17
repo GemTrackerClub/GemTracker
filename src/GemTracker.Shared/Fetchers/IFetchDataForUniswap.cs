@@ -42,9 +42,11 @@ namespace GemTracker.Shared.Fetchers
 
                 new TokenChartStep(),
 
-                new TokenDataStep(_uniswapService),
+                new TokenAndLiquidityDataStep(_uniswapService),
                 new TokenDetailsStep(_ethPlorerService),
-                new TokenContractStep(_etherScanService)
+                new TokenContractStep(_etherScanService),
+                new TokenPairsStep(_uniswapService),
+                new TokenHoldersStep(_ethPlorerService)
             };
 
             foreach (var gem in gems)

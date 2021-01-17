@@ -10,7 +10,7 @@ namespace GemTracker.Shared.Domain.Configs
         [Description("PREMIUM")]
         PREMIUM = 1,
 
-        [Description("VERIFIED")]
-        VERIFIED = 2
+        [Description("FILTERED")]
+        FILTERED = 2
     }
 }

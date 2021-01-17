@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain;
+using GemTracker.Shared.Domain.Configs;
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
@@ -7,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Fetchers.Steps
 {
-    public class TokenDataStep : IStep
+    public class TokenAndLiquidityDataStep : IStep
     {
         private readonly IUniswapService _uniswapService;
-        public TokenDataStep(IUniswapService uniswapService)
+        public TokenAndLiquidityDataStep(IUniswapService uniswapService)
         {
             _uniswapService = uniswapService;
         }
@@ -20,13 +21,13 @@ namespace GemTracker.Shared.Fetchers.Steps
             {
                 var tokenData = await _uniswapService.FetchTokenAsync(gem.Id);
 
-                var tokenInfo = SharedMessageContent.TokenDataContent(gem.Recently, gem.Symbol, tokenData);
+                var tokenInfo = SharedMessageContent.TokenAndLiquidityDataContent(gem.Recently, gem.Symbol, tokenData);
 
-                return new StepResult(StepResultType.Success, tokenInfo);
+                return new StepResult(StepResultType.Success, tokenInfo, AudienceType.PREMIUM);
             }
             catch (Exception ex)
             {
-                return await Task.FromResult(new StepResult(StepResultType.Error, ex.GetFullMessage()));
+                return await Task.FromResult(new StepResult(StepResultType.Error, ex.GetFullMessage(), AudienceType.PREMIUM));
             }
         }
     }

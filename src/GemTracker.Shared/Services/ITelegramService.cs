@@ -16,18 +16,22 @@ namespace GemTracker.Shared.Services
     {
         Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null);
         Task<SocialResponse> SendPremiumMessageAsync(string message, IReplyMarkup replyMarkup = null);
+        Task<SocialResponse> SendFilteredMessageAsync(string message, IReplyMarkup replyMarkup = null);
     }
 
     public class TelegramService : ITelegramService
     {
         private readonly ITelegramBotClient _telegramFree;
         private readonly ITelegramBotClient _telegramPremium;
+        private readonly ITelegramBotClient _telegramFiltered;
 
         private readonly string _freeChatId;
         private readonly string _premiumChatId;
+        private readonly string _filteredId;
 
         private readonly bool _isFreeActive;
         private readonly bool _isPremiumActive;
+        private readonly bool _isFilteredActive;
 
         public TelegramService(IEnumerable<TelegramConfig> telegramConfigs)
         {
@@ -46,6 +50,39 @@ namespace GemTracker.Shared.Services
                 _telegramFree = new TelegramBotClient(freeAudience.ApiKey);
                 _freeChatId = freeAudience.ChatId;
             }
+
+            var filteredAudience = telegramConfigs.FirstOrDefault(t => t.Audience == AudienceType.FILTERED);
+            _isFilteredActive = filteredAudience.IsActive;
+            if (_isFilteredActive)
+            {
+                _telegramFiltered = new TelegramBotClient(filteredAudience.ApiKey);
+                _filteredId = filteredAudience.ChatId;
+            }
+        }
+
+        public async Task<SocialResponse> SendFilteredMessageAsync(string message, IReplyMarkup replyMarkup = null)
+        {
+            var response = new SocialResponse();
+            try
+            {
+                if (_isFilteredActive)
+                {
+                    var s = await _telegramFiltered.SendTextMessageAsync(
+                        _filteredId,
+                        message,
+                        parseMode: ParseMode.Markdown,
+                        disableWebPagePreview: true,
+                        replyMarkup: replyMarkup);
+                }
+
+                response.Success = true;
+            }
+            catch (Exception e)
+            {
+                response.Success = false;
+                response.Message = e.GetFullMessage();
+            }
+            return response;
         }
 
         public async Task<SocialResponse> SendFreeMessageAsync(string message, IReplyMarkup replyMarkup = null)

@@ -8,22 +8,22 @@ using System.Threading.Tasks;
 
 namespace GemTracker.Shared.Fetchers.Steps
 {
-    public class TokenDetailsStep : IStep
+    public class TokenPairsStep : IStep
     {
-        private readonly IEthPlorerService _ethPlorerService;
-        public TokenDetailsStep(IEthPlorerService ethPlorerService)
+        private readonly IUniswapService _uniswapService;
+        public TokenPairsStep(IUniswapService uniswapService)
         {
-            _ethPlorerService = ethPlorerService;
+            _uniswapService = uniswapService;
         }
         public async Task<IStepResult> ResultAsync(Gem gem)
         {
             try
             {
-                var detailsData = await _ethPlorerService.FetchTokenInfoAsync(gem.Id);
+                var pairTask = await _uniswapService.FetchPairsAsync(gem.Id);
 
-                var tokenDetails = SharedMessageContent.TokenDetailsContent(gem.Recently, gem.Symbol, detailsData);
+                var pairsDetails = SharedMessageContent.TokenPairsContent(gem.Recently, pairTask);
 
-                return new StepResult(StepResultType.Success, tokenDetails, AudienceType.PREMIUM);
+                return new StepResult(StepResultType.Success, pairsDetails, AudienceType.PREMIUM);
             }
             catch (Exception ex)
             {

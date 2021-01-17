@@ -60,9 +60,10 @@ namespace GemTracker.Shared.Domain
                 :
                     string.Empty;
 
-        public static string TokenDataContent(TokenActionType tokenAction, string symbol, SingleServiceResponse<TokenData> tokenData)
+        public static string TokenAndLiquidityDataContent(TokenActionType tokenAction, string symbol, SingleServiceResponse<TokenData> tokenData)
         {
             string tokenInfo = string.Empty;
+            string liquidityInfo = string.Empty;
 
             if (tokenAction == TokenActionType.ADDED)
             {
@@ -76,9 +77,21 @@ namespace GemTracker.Shared.Domain
                 }
                 else
                     tokenInfo += $"`Data unavailable` \n\n";
+
+                liquidityInfo = $"🥈 *Liquidity*\n";
+
+                if (tokenData.Success)
+                {
+                    liquidityInfo +=
+                        $"USD: _${tokenData.ObjectResponse.LiquidityUSD}_\n" +
+                        $"ETH: _{tokenData.ObjectResponse.LiquidityETH}_\n" +
+                        $"{symbol}: _{tokenData.ObjectResponse.LiquidityToken}_\n\n";
+                }
+                else
+                    liquidityInfo += $"`Data unavailable` \n\n";
             }
 
-            return tokenInfo;
+            return tokenInfo + liquidityInfo;
         }
 
         public static string TokenDetailsContent(TokenActionType tokenAction, string symbol, SingleServiceResponse<TokenInfo> tokenInfo)
@@ -100,6 +113,7 @@ namespace GemTracker.Shared.Domain
 
                     tokenInfoDetails +=
                         $"Transfers: _{tokenInfo.ObjectResponse.TransfersCount}_\n" +
+                        $"Hodlers: {tokenInfo.ObjectResponse.HoldersCount}\n" +
                         owner +
                         $"Total supply: _{UnitConversion.Convert.FromWei(val, dec)}_ {symbol} \n\n";
                 }
@@ -114,7 +128,7 @@ namespace GemTracker.Shared.Domain
         {
             string contractInfo = string.Empty;
 
-            if (tokenAction == TokenActionType.ADDED)
+            if (tokenAction == TokenActionType.ADDED || tokenAction == TokenActionType.KYBER_ADDED_TO_ACTIVE)
             {
                 if (contract.Success)
                 {
@@ -127,6 +141,63 @@ namespace GemTracker.Shared.Domain
             }
 
             return contractInfo;
+        }
+
+        public static string TokenPairsContent(TokenActionType tokenAction, ListServiceResponse<PairData> pairResponse)
+        {
+            var formPair = string.Empty;
+
+            if (tokenAction == TokenActionType.ADDED)
+            {
+                formPair = $"🥉 *Pairs*\n";
+
+                if (pairResponse.Success)
+                {
+                    foreach (var item in pairResponse.ListResponse)
+                    {
+                        formPair +=
+                            $"`{item.Token0.Symbol}/{item.Token1.Symbol}`\n" +
+                            $"Total value: _${item.TotalLiquidityUSD} USD_\n" +
+                            $"Created at: _{item.CreatedAt:dd.MM.yyyy}_\n" +
+                            $"[Uniswap](https://info.uniswap.org/pair/{item.Id}) |" +
+                            $" [DEXT](https://www.dextools.io/app/uniswap/pair-explorer/{item.Id}) |" +
+                            $" [Astro](https://app.astrotools.io/pair-explorer/{item.Id}) |" +
+                            $" [MoonTools](https://app.moontools.io/pairs/{item.Id}) |" +
+                            $" [UniCrypt](https://v2.unicrypt.network/pair/{item.Id})" +
+                            $"\n\n";
+                    }
+                }
+                else
+                    formPair += $"`Data unavailable` \n\n";
+            }
+
+            return formPair;
+        }
+
+        public static string TokenHoldersContent(TokenActionType tokenAction, string tokenId, int topHodlersNumber, SingleServiceResponse<TopHolderList> serviceResponse)
+        {
+            string topHoldersInfo = string.Empty;
+
+            if (tokenAction == TokenActionType.ADDED || tokenAction == TokenActionType.KYBER_ADDED_TO_ACTIVE)
+            {
+                if (serviceResponse.Success)
+                {
+                    topHoldersInfo += $"🌐 Top {topHodlersNumber} hodlers below:\n";
+
+                    var counter = 1;
+
+                    foreach (var item in serviceResponse.ObjectResponse.Holders)
+                    {
+                        topHoldersInfo += $"[Hodler - {counter++}](https://etherscan.io/token/{tokenId}?a={item.Address}) - `{item.Share}%` \n";
+                    }
+
+                    topHoldersInfo += $"\n\n";
+                }
+                else
+                    topHoldersInfo += $"`Data unavailable` \n\n";
+            }
+
+            return topHoldersInfo;
         }
     }
 }

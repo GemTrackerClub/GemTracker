@@ -1,4 +1,5 @@
 ﻿using GemTracker.Shared.Domain;
+using GemTracker.Shared.Domain.Configs;
 using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Extensions;
 using GemTracker.Shared.Services;
@@ -23,11 +24,12 @@ namespace GemTracker.Shared.Fetchers.Steps
 
                 var contractDetails = SharedMessageContent.TokenContractContent(gem.Recently, gem.Id, contractTask);
 
-                return new StepResult(StepResultType.Success, contractDetails);
+                return new StepResult(StepResultType.Success, contractDetails, AudienceType.PREMIUM);
             }
             catch (Exception ex)
             {
-                return await Task.FromResult(new StepResult(StepResultType.Error, ex.GetFullMessage()));
+                return await Task.FromResult(
+                    new StepResult(StepResultType.Error, ex.GetFullMessage(), AudienceType.PREMIUM));
             }
         }
     }
