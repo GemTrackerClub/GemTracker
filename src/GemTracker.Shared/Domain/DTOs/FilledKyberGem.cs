@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GemTracker.Shared.Domain.DTOs
+﻿namespace GemTracker.Shared.Domain.DTOs
 {
     public class FilledKyberGem : Gem
     {
+        public string PremiumGemMessage { get; set; }
     }
 }

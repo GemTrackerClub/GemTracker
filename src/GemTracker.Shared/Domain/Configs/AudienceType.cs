@@ -8,9 +8,6 @@ namespace GemTracker.Shared.Domain.Configs
         FREE = 0,
 
         [Description("PREMIUM")]
-        PREMIUM = 1,
-
-        [Description("FILTERED")]
-        FILTERED = 2
+        PREMIUM = 1
     }
 }

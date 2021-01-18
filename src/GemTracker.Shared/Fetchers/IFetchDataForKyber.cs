@@ -44,15 +44,18 @@ namespace GemTracker.Shared.Fetchers
 
             foreach (var gem in gems)
             {
+                var filledGem = new FilledKyberGem();
+
                 foreach (var step in _steps)
                 {
                     var result = await step.ResultAsync(gem);
 
                     if (result.Success)
                     {
-
+                        filledGem.PremiumGemMessage += result.Message;
                     }
                 }
+                formattedResult.Add(filledGem);
             }
 
             return formattedResult;

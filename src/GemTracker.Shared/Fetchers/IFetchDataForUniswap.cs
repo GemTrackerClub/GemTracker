@@ -1,4 +1,5 @@
-﻿using GemTracker.Shared.Domain.DTOs;
+﻿using GemTracker.Shared.Domain.Configs;
+using GemTracker.Shared.Domain.DTOs;
 using GemTracker.Shared.Fetchers.Abstract;
 using GemTracker.Shared.Fetchers.Steps;
 using GemTracker.Shared.Services;
@@ -51,15 +52,28 @@ namespace GemTracker.Shared.Fetchers
 
             foreach (var gem in gems)
             {
+                var filledGem = new FilledUniswapGem();
+
+                var gemMessage = string.Empty;
+                var premMessage = string.Empty;
+
                 foreach (var step in _steps)
                 {
                     var result = await step.ResultAsync(gem);
 
                     if (result.Success)
                     {
+                        if(result.AudienceType == AudienceType.FREE)
+                        {
+                            gemMessage += result.Message;
+                        }
 
+                        premMessage += result.Message;
                     }
+                    filledGem.FreeGemMessage += gemMessage;
+                    filledGem.PremiumGemMessage += premMessage;
                 }
+                formattedResult.Add(filledGem);
             }
 
             return formattedResult;

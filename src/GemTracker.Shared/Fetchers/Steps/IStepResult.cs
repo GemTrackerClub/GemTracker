@@ -6,6 +6,7 @@ namespace GemTracker.Shared.Fetchers.Steps
     {
         string Message { get; }
         bool Success { get; }
+        AudienceType AudienceType { get; }
     }
 
     public enum StepResultType
